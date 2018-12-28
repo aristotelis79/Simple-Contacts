@@ -107,9 +107,6 @@ const val DEFAULT_ORGANIZATION_TYPE = CommonDataKinds.Organization.TYPE_WORK
 const val DEFAULT_WEBSITE_TYPE = CommonDataKinds.Website.TYPE_HOMEPAGE
 const val DEFAULT_IM_TYPE = CommonDataKinds.Im.PROTOCOL_SKYPE
 
-const val FOLDER_TYPE = 32767
-const val FILE_TYPE = 32766
-
 // some manufacturer contact account types from https://stackoverflow.com/a/44802016/1967672
 val localAccountTypes = arrayListOf("vnd.sec.contact.phone",
         "com.htc.android.pcsc",

@@ -18,7 +18,7 @@ import com.simplemobiletools.contacts.pro.dialogs.CallConfirmationDialog
 import com.simplemobiletools.contacts.pro.extensions.*
 import com.simplemobiletools.contacts.pro.helpers.*
 import kotlinx.android.synthetic.main.activity_view_contact.*
-import kotlinx.android.synthetic.main.item_view_folder.view.*
+import kotlinx.android.synthetic.main.item_view_file_dir_item.view.*
 import kotlinx.android.synthetic.main.item_event.view.*
 import kotlinx.android.synthetic.main.item_view_address.view.*
 import kotlinx.android.synthetic.main.item_view_email.view.*
@@ -375,24 +375,24 @@ class ViewContactActivity : ContactActivity() {
         contact_folders_holder.removeAllViews()
         var folders = ContactsHelper(this).getFolderItems(Environment.getExternalStorageDirectory().toString() + "/" + Environment.DIRECTORY_DOWNLOADS) //getExternalFilesDir("ContanctName").toString()
         if(folders.any()){
-            folders.sortedBy{it.isDirectory}.forEach {
-                layoutInflater.inflate(R.layout.item_view_folder, contact_folders_holder,false).apply {
+            folders.sortedBy{!it.isDirectory}.forEach {
+                layoutInflater.inflate(R.layout.item_view_file_dir_item, contact_folders_holder,false).apply {
                     var fileDirItem = it
                     contact_folders_holder.addView(this)
-                    contact_folder.text = fileDirItem.name
+                    contact_fileDirItem.text = fileDirItem.name
                     if(fileDirItem.isDirectory){
-                        contact_folder_type.text = getString(R.string.folder)
-                        contact_folder_type.alpha = 0.5f
-                        contact_folder.alpha = 0.5f
+                        contact_fileDirItem_type.text = getString(R.string.folder)
+                        contact_fileDirItem_type.alpha = 0.5f
+                        contact_fileDirItem.alpha = 0.5f
 
                         setOnClickListener{
-                            FilePickerDialog(activity = this@ViewContactActivity,currPath = fileDirItem.path, pickFile = true, showFAB = true){
+                            FilePickerDialog(activity = this@ViewContactActivity,currPath = fileDirItem.path, pickFile = true){
                                 openFileIntent(it)
                             }
                         }
                     }
                     else{
-                        contact_folder_type.text = getString(R.string.file)
+                        contact_fileDirItem_type.text = getString(R.string.file)
                         setOnClickListener {
                             openFileIntent(fileDirItem.path)
                         }

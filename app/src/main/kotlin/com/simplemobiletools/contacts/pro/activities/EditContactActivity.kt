@@ -19,14 +19,12 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.PERMISSION_READ_CONTACTS
 import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_CONTACTS
 import com.simplemobiletools.commons.models.FileDirItem
 import com.simplemobiletools.commons.models.RadioItem
-import com.simplemobiletools.commons.views.MyTextView
 import com.simplemobiletools.contacts.pro.R
 import com.simplemobiletools.contacts.pro.dialogs.CustomLabelDialog
 import com.simplemobiletools.contacts.pro.dialogs.SelectGroupsDialog
@@ -36,7 +34,7 @@ import com.simplemobiletools.contacts.pro.models.*
 import kotlinx.android.synthetic.main.activity_edit_contact.*
 import kotlinx.android.synthetic.main.item_edit_address.view.*
 import kotlinx.android.synthetic.main.item_edit_email.view.*
-import kotlinx.android.synthetic.main.item_edit_folder.*
+import kotlinx.android.synthetic.main.item_edit_file_dir_item.view.*
 import kotlinx.android.synthetic.main.item_edit_group.view.*
 import kotlinx.android.synthetic.main.item_edit_im.view.*
 import kotlinx.android.synthetic.main.item_edit_phone_number.view.*
@@ -44,7 +42,6 @@ import kotlinx.android.synthetic.main.item_edit_website.view.*
 import kotlinx.android.synthetic.main.item_event.view.*
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-import java.lang.StringBuilder
 
 class EditContactActivity : ContactActivity() {
     private val INTENT_TAKE_PHOTO = 1
@@ -240,6 +237,8 @@ class EditContactActivity : ContactActivity() {
         contact_websites_add_new.background.applyColorFilter(textColor)
         contact_groups_add_new.applyColorFilter(adjustedPrimaryColor)
         contact_groups_add_new.background.applyColorFilter(textColor)
+        contact_fileDirItem_add_new.applyColorFilter(adjustedPrimaryColor)
+        contact_fileDirItem_add_new.background.applyColorFilter(textColor)
 
         contact_toggle_favorite.setOnClickListener { toggleFavorite() }
         contact_photo.setOnClickListener { trySetPhoto() }
@@ -254,6 +253,7 @@ class EditContactActivity : ContactActivity() {
         contact_websites_add_new.setOnClickListener { addNewWebsiteField() }
         contact_groups_add_new.setOnClickListener { showSelectGroupsDialog() }
         contact_source.setOnClickListener { showSelectContactSourceDialog() }
+        //TODO Add FilePicker or TakePhoto contact_fileDirItem_add_new.setOnClickListener{   }
 
         setupFieldVisibility()
 
@@ -397,7 +397,7 @@ class EditContactActivity : ContactActivity() {
         setupEvents()
         setupGroups()
         setupContactSource()
-        setupFolders()
+        setupFileDirsItems()
     }
 
     private fun setupNames() {
@@ -524,40 +524,40 @@ class EditContactActivity : ContactActivity() {
         }
     }
 
-    private fun setupFolders(){
+    private fun setupFileDirsItems(){
 
-        var folders = ContactsHelper(this).getFolderItems(Environment.getExternalStorageDirectory().toString() + "/" + Environment.DIRECTORY_DOWNLOADS) //getExternalFilesDir("ContanctName").toString()
-        var folderList = this.findViewById<MyTextView>(R.id.contact_folder)
-        var folderText = StringBuilder()
-        folders.forEach{f -> folderText.append(f.name).append(", ")}
-        folderList.text = folderText
+        var fileDirItemList = ContactsHelper(this).getFolderItems(Environment.getExternalStorageDirectory().toString() + "/" + Environment.DIRECTORY_DOWNLOADS) //getExternalFilesDir("ContanctName").toString()
+        //var folderList = this.findViewById<MyTextView>(R.id.contact_folder)
+        //var folderText = StringBuilder()
+        //folders.forEach{f -> folderText.append(f.name).append(", ")}
+        //folderList.text = folderText
 
 
 
-/*        folders.forEachIndexed { index, event ->
-            var folderHolder = contact_folder_event.getChildAt(index)
-            if(folderHolder == null){
-                folderHolder = layoutInflater.inflate(R.layout.item_edit_folder, contact_folder_holder, false)
-                contact_folder_holder.addView(folderHolder)
+        fileDirItemList.forEachIndexed { index, fileDirItem ->
+            var fileDirHolder = contact_fileDirItem.getChildAt(index)
+            if(fileDirHolder == null){
+                fileDirHolder = layoutInflater.inflate(R.layout.item_edit_file_dir_item, contact_fileDirItem, false)
+                contact_fileDirItem.addView(fileDirHolder)
             }
 
-            (folderHolder as ViewGroup).apply {
-                val contactFolder = contact_folder.apply{
-                    //event.
+            (fileDirHolder as ViewGroup).apply {
+                val contactFolder = contact_fileDirItem.apply{
+                    text = fileDirItem.name
                     alpha = 1f
                 }
-                setupFolderTypePicker(this, if(event.isDirectory){FOLDER_TYPE} else {FILE_TYPE})
+                setupFileDirType(this, if(fileDirItem.isDirectory){R.string.folder} else {R.string.file})
 
-                contact_folder_remove.apply{
+                contact_fileDirItem_remove.apply{
                     beVisible()
                     applyColorFilter(getAdjustedPrimaryColor())
                     background.applyColorFilter(config.textColor)
                     setOnClickListener {
-                        removeFolder(contactFolder, this)
+                        removeFileDirItem(contactFolder, this)
                     }
                 }
             }
-        }*/
+        }
     }
 
     private fun setupGroups() {
@@ -736,8 +736,8 @@ class EditContactActivity : ContactActivity() {
         }
     }
 
-    private fun setupFolderTypePicker(folderType: ViewGroup, type: Int = FILE_TYPE){
-
+    private fun setupFileDirType(folderType: ViewGroup, type: Int = R.string.file){
+        folderType.contact_fileDirItem_type.text = getString(type)
     }
 
     private fun setupGroupsPicker(groupTitleField: TextView, group: Group? = null) {
@@ -759,9 +759,13 @@ class EditContactActivity : ContactActivity() {
         removeContactEventButton.beGone()
     }
 
-    private fun removeFolder(contactFolder: TextView,removeContactFolderButton: ImageView){
-        contactFolder.apply {  }
-        removeContactFolderButton.beGone()
+    private fun removeFileDirItem(contactFolder: TextView, removeContactFileDirItemButton: ImageView){
+        contactFolder.apply {
+            text = ""
+            tag = ""
+            alpha = 0.5f
+        }
+        removeContactFileDirItemButton.beGone()
     }
 
     private fun removeGroup(id: Long) {
@@ -1009,11 +1013,8 @@ class EditContactActivity : ContactActivity() {
         return events
     }
 
-    private fun getFilledFolders(): ArrayList<FileDirItem>{
+    private fun getFilledFileDirItems(): ArrayList<FileDirItem>{
 
-/*        FilePickerDialog(this) {
-
-        }*/
         return ArrayList()
     }
 
@@ -1204,7 +1205,7 @@ class EditContactActivity : ContactActivity() {
         contact!!.events.add(event)
     }
 
-    private fun parseFolder(contentValues: ContentValues){
+    private fun parseFileDirItem(contentValues: ContentValues){
 
     }
 

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/contact_folder_holder"
+    android:id="@+id/contact_fileDirItem_holder"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <com.simplemobiletools.commons.views.MyTextView
-        android:id="@+id/contact_folder"
+        android:id="@+id/contact_fileDirItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/contact_folder_remove"
-        android:layout_toStartOf="@+id/contact_folder_remove"
+        android:layout_toLeftOf="@+id/contact_fileDirItem_remove"
+        android:layout_toStartOf="@+id/contact_fileDirItem_remove"
         android:alpha="0.5"
         android:background="?attr/selectableItemBackground"
         android:paddingBottom="@dimen/normal_margin"
@@ -22,30 +22,30 @@
         android:textSize="@dimen/bigger_text_size"/>
 
     <ImageView
-        android:id="@+id/contact_folder_remove"
+        android:id="@+id/contact_fileDirItem_remove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/contact_folder"
-        android:layout_alignTop="@+id/contact_folder"
+        android:layout_alignBottom="@+id/contact_fileDirItem"
+        android:layout_alignTop="@+id/contact_fileDirItem"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/medium_margin"
         android:layout_marginLeft="@dimen/small_margin"
         android:layout_marginRight="@dimen/small_margin"
         android:layout_marginTop="@dimen/medium_margin"
-        android:layout_toLeftOf="@+id/contact_folder_type"
+        android:layout_toLeftOf="@+id/contact_fileDirItem_type"
         android:background="@drawable/button_background"
         android:padding="@dimen/medium_margin"
         android:src="@drawable/ic_minus"
         android:visibility="gone"/>
 
     <com.simplemobiletools.commons.views.MyTextView
-        android:id="@+id/contact_folder_type"
+        android:id="@+id/contact_fileDirItem_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/contact_folder"
+        android:layout_alignBottom="@+id/contact_fileDirItem"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/contact_folder"
+        android:layout_alignTop="@+id/contact_fileDirItem"
         android:layout_centerVertical="true"
         android:background="?attr/selectableItemBackground"
         android:gravity="center"
