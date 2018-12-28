@@ -531,11 +531,7 @@ class EditContactActivity : ContactActivity() {
 
     private fun setupFileDirItems(){
 
-        var fileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH) //getExternalFilesDir("ContanctName").toString()
-        //var folderList = this.findViewById<MyTextView>(R.id.contact_folder)
-        //var folderText = StringBuilder()
-        //folders.forEach{f -> folderText.append(f.name).append(", ")}
-        //folderList.text = folderText
+        var fileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH)
 
         fileDirItemsList.sortedBy { !it.isDirectory }.forEachIndexed { index, fileDirItem ->
             var fileDirHolder = contact_fileDirItem.getChildAt(index)
@@ -549,8 +545,6 @@ class EditContactActivity : ContactActivity() {
                     text = fileDirItem.name
                     alpha = 1f
                 }
-
-                //contact_fileDirItem_type.text = getString(if(fileDirItem.isDirectory){R.string.folder} else {R.string.file}) TODO ??
 
                 contact_fileDirItem_remove.apply{
                     beVisible()
@@ -1180,9 +1174,8 @@ class EditContactActivity : ContactActivity() {
             when (it as Int) {
                 SAVE_PHOTO -> startSavePhotoIntent()
                 CHOOSE_FILE -> FilePickerDialog(this,currPath = BASE_CONTACT_EXTERNAL_PATH,pickFile = true,showFAB = true){
-                    //TODO Save File to Contact root path
+                    ContactsHelper(this).moveFile("$BASE_CONTACT_EXTERNAL_PATH${it.getFilenameFromPath()}", it)
                 }
-                //else -> return@RadioGroupDialog TODO??
             }
         }
     }

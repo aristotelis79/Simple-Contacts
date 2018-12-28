@@ -1650,19 +1650,11 @@ class ContactsHelper(val context: Context) {
     fun getFolderItems(path: String ,
                        getProperFileSize: Boolean = false,
                        showHidden: Boolean = false
-                       //currPath: String = Environment.getExternalStorageDirectory().toString(),
-                       //pickFile: Boolean = true,
-                       //callback: (List<FileDirItem>)
-                       //-> Unit)
                         ): List<FileDirItem> {
 
         val items = java.util.ArrayList<FileDirItem>()
         val base = File(path)
-        val files = base.listFiles()
-        if (files == null) {
-            //callback(items)
-            return ArrayList()
-        }
+        val files = base.listFiles() ?: return ArrayList()
 
         for (file in files) {
             if (!showHidden && file.isHidden) {
@@ -1674,7 +1666,18 @@ class ContactsHelper(val context: Context) {
             val size = if (getProperFileSize) file.getProperSize(showHidden) else file.length()
             items.add(FileDirItem(curPath, curName, file.isDirectory, file.getDirectChildrenCount(showHidden), size))
         }
-        //callback(items)
         return items
+    }
+
+    fun moveFile(source: String, target: String) {
+        try {
+            val fileToMove = File(source)
+            val isMoved = fileToMove.renameTo(File(target))
+            if (!isMoved) {
+                throw FileSystemException(fileToMove, reason = "Something go wrong")
+            }
+        } catch (ex: java.lang.Exception) {
+            ex.printStackTrace()
+        }
     }
 }
