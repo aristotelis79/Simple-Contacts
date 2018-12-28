@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.RelativeLayout
+import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.PERMISSION_READ_CONTACTS
 import com.simplemobiletools.contacts.pro.R
@@ -374,20 +375,26 @@ class ViewContactActivity : ContactActivity() {
         contact_folders_holder.removeAllViews()
         var folders = ContactsHelper(this).getFolderItems(Environment.getExternalStorageDirectory().toString() + "/" + Environment.DIRECTORY_DOWNLOADS) //getExternalFilesDir("ContanctName").toString()
         if(folders.any()){
-            folders.forEach {
+            folders.sortedBy{it.isDirectory}.forEach {
                 layoutInflater.inflate(R.layout.item_view_folder, contact_folders_holder,false).apply {
-                    var file = it
+                    var fileDirItem = it
                     contact_folders_holder.addView(this)
-                    contact_folder.text = file.name
-                    contact_folder_type.text = if(file.isDirectory){"@string/Folder"}else{"@string/File"}
-                    contact_folder.alpha = if(file.isDirectory){0.5f}else{1f}
+                    contact_folder.text = fileDirItem.name
+                    if(fileDirItem.isDirectory){
+                        contact_folder_type.text = getString(R.string.folder)
+                        contact_folder_type.alpha = 0.5f
+                        contact_folder.alpha = 0.5f
 
-                    if(file.isDirectory){
-                        //TODO
+                        setOnClickListener{
+                            FilePickerDialog(activity = this@ViewContactActivity,currPath = fileDirItem.path, pickFile = true, showFAB = true){
+                                openFileIntent(it)
+                            }
+                        }
                     }
                     else{
+                        contact_folder_type.text = getString(R.string.file)
                         setOnClickListener {
-                            openFileIntent(file.path)
+                            openFileIntent(fileDirItem.path)
                         }
                     }
                 }
