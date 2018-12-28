@@ -7,6 +7,8 @@ import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.BlockedNumberContract
 import android.provider.BlockedNumberContract.BlockedNumbers
 import android.provider.ContactsContract
@@ -215,11 +217,26 @@ fun Context.getPhotoThumbnailSize(): Int {
 
 fun Context.hasContactPermissions() = hasPermission(PERMISSION_READ_CONTACTS) && hasPermission(PERMISSION_WRITE_CONTACTS)
 
-fun Context.getPublicContactSource(source: String): String {
-    return when (source) {
-        config.localAccountName -> getString(R.string.phone_storage)
-        SMT_PRIVATE -> getString(R.string.phone_storage_hidden)
-        else -> source
+fun Context.getPublicContactSource(source: String, callback: (String) -> Unit) {
+    when (source) {
+        config.localAccountName -> callback(getString(R.string.phone_storage))
+        SMT_PRIVATE -> callback(getString(R.string.phone_storage_hidden))
+        else -> {
+            Thread {
+                ContactsHelper(this).getContactSources {
+                    var newSource = source
+                    for (contactSource in it) {
+                        if (contactSource.name == source && contactSource.type == TELEGRAM_PACKAGE) {
+                            newSource += " (${getString(R.string.telegram)})"
+                            break
+                        }
+                    }
+                    Handler(Looper.getMainLooper()).post {
+                        callback(newSource)
+                    }
+                }
+            }.start()
+        }
     }
 }
 
@@ -311,9 +328,11 @@ fun Context.getContactPublicUri(contact: Contact): Uri {
 
 fun Context.getVisibleContactSources(): ArrayList<String> {
     val sources = ContactsHelper(this).getDeviceContactSources()
-    sources.add(ContactSource(getString(R.string.phone_storage_hidden), SMT_PRIVATE))
-    val sourceNames = ArrayList(sources).map { if (it.type == SMT_PRIVATE) SMT_PRIVATE else it.name }.toMutableList() as ArrayList<String>
-    sourceNames.removeAll(config.ignoredContactSources)
+    val phoneSecret = getString(R.string.phone_storage_hidden)
+    sources.add(ContactSource(phoneSecret, SMT_PRIVATE, phoneSecret))
+    val ignoredContactSources = config.ignoredContactSources
+    val sourceNames = ArrayList(sources).filter { !ignoredContactSources.contains(it.getFullIdentifier()) }
+            .map { if (it.type == SMT_PRIVATE) SMT_PRIVATE else it.name }.toMutableList() as ArrayList<String>
     return sourceNames
 }
 
