@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.ContactsContract.CommonDataKinds
 import android.provider.MediaStore
 import android.view.Menu
@@ -19,6 +18,7 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.PERMISSION_READ_CONTACTS
@@ -47,10 +47,14 @@ class EditContactActivity : ContactActivity() {
     private val INTENT_TAKE_PHOTO = 1
     private val INTENT_CHOOSE_PHOTO = 2
     private val INTENT_CROP_PHOTO = 3
+    private val INTENT_SAVE_PHOTO = 4
 
     private val TAKE_PHOTO = 1
     private val CHOOSE_PHOTO = 2
     private val REMOVE_PHOTO = 3
+
+    private val SAVE_PHOTO = 5
+    private val CHOOSE_FILE = 6
 
     private var wasActivityInitialized = false
     private var lastPhotoIntentUri: Uri? = null
@@ -120,6 +124,7 @@ class EditContactActivity : ContactActivity() {
             when (requestCode) {
                 INTENT_TAKE_PHOTO, INTENT_CHOOSE_PHOTO -> startCropPhotoIntent(lastPhotoIntentUri, resultData?.data)
                 INTENT_CROP_PHOTO -> updateContactPhoto(lastPhotoIntentUri.toString(), contact_photo)
+                INTENT_SAVE_PHOTO -> toast(R.string.file_saved)
             }
         }
     }
@@ -253,7 +258,7 @@ class EditContactActivity : ContactActivity() {
         contact_websites_add_new.setOnClickListener { addNewWebsiteField() }
         contact_groups_add_new.setOnClickListener { showSelectGroupsDialog() }
         contact_source.setOnClickListener { showSelectContactSourceDialog() }
-        //TODO Add FilePicker or TakePhoto contact_fileDirItem_add_new.setOnClickListener{   }
+        contact_fileDirItem_add_new.setOnClickListener{ tryAddFileDirItem()  }
 
         setupFieldVisibility()
 
@@ -397,7 +402,7 @@ class EditContactActivity : ContactActivity() {
         setupEvents()
         setupGroups()
         setupContactSource()
-        setupFileDirsItems()
+        setupFileDirItems()
     }
 
     private fun setupNames() {
@@ -524,17 +529,15 @@ class EditContactActivity : ContactActivity() {
         }
     }
 
-    private fun setupFileDirsItems(){
+    private fun setupFileDirItems(){
 
-        var fileDirItemList = ContactsHelper(this).getFolderItems(Environment.getExternalStorageDirectory().toString() + "/" + Environment.DIRECTORY_DOWNLOADS) //getExternalFilesDir("ContanctName").toString()
+        var fileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH) //getExternalFilesDir("ContanctName").toString()
         //var folderList = this.findViewById<MyTextView>(R.id.contact_folder)
         //var folderText = StringBuilder()
         //folders.forEach{f -> folderText.append(f.name).append(", ")}
         //folderList.text = folderText
 
-
-
-        fileDirItemList.forEachIndexed { index, fileDirItem ->
+        fileDirItemsList.sortedBy { !it.isDirectory }.forEachIndexed { index, fileDirItem ->
             var fileDirHolder = contact_fileDirItem.getChildAt(index)
             if(fileDirHolder == null){
                 fileDirHolder = layoutInflater.inflate(R.layout.item_edit_file_dir_item, contact_fileDirItem, false)
@@ -546,7 +549,8 @@ class EditContactActivity : ContactActivity() {
                     text = fileDirItem.name
                     alpha = 1f
                 }
-                setupFileDirType(this, if(fileDirItem.isDirectory){R.string.folder} else {R.string.file})
+
+                //contact_fileDirItem_type.text = getString(if(fileDirItem.isDirectory){R.string.folder} else {R.string.file}) TODO ??
 
                 contact_fileDirItem_remove.apply{
                     beVisible()
@@ -734,10 +738,6 @@ class EditContactActivity : ContactActivity() {
                 resetContactEvent(eventField, this@apply)
             }
         }
-    }
-
-    private fun setupFileDirType(folderType: ViewGroup, type: Int = R.string.file){
-        folderType.contact_fileDirItem_type.text = getString(type)
     }
 
     private fun setupGroupsPicker(groupTitleField: TextView, group: Group? = null) {
@@ -1013,8 +1013,8 @@ class EditContactActivity : ContactActivity() {
         return events
     }
 
-    private fun getFilledFileDirItems(): ArrayList<FileDirItem>{
-
+    private fun getFilledFileDirItems(): ArrayList<FileDirItem> {
+        //TODO Get the remain file /folder and delete the other
         return ArrayList()
     }
 
@@ -1164,6 +1164,23 @@ class EditContactActivity : ContactActivity() {
         }
     }
 
+    private fun tryAddFileDirItem() {
+        val items = arrayListOf(
+                RadioItem(SAVE_PHOTO, getString(R.string.take_photo)),
+                RadioItem(CHOOSE_FILE, getString(R.string.choose_file))
+        )
+
+        RadioGroupDialog(this, items) {
+            when (it as Int) {
+                SAVE_PHOTO -> startSavePhotoIntent()
+                CHOOSE_FILE -> FilePickerDialog(this,currPath = BASE_CONTACT_EXTERNAL_PATH,pickFile = true,showFAB = true){
+                    //TODO Save File to Contact root path
+                }
+                //else -> return@RadioGroupDialog TODO??
+            }
+        }
+    }
+
     private fun parseIntentData(data: ArrayList<ContentValues>) {
         data.forEach {
             when (it.get(CommonDataKinds.StructuredName.MIMETYPE)) {
@@ -1206,7 +1223,7 @@ class EditContactActivity : ContactActivity() {
     }
 
     private fun parseFileDirItem(contentValues: ContentValues){
-
+        //TODO Get the remain file /folder and delete the other
     }
 
     private fun parseWebsite(contentValues: ContentValues) {
@@ -1242,6 +1259,19 @@ class EditContactActivity : ContactActivity() {
             putExtra(MediaStore.EXTRA_OUTPUT, uri)
             if (resolveActivity(packageManager) != null) {
                 startActivityForResult(this, INTENT_CHOOSE_PHOTO)
+            } else {
+                toast(R.string.no_app_found)
+            }
+        }
+    }
+
+    private fun startSavePhotoIntent() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+
+            putExtra(MediaStore.EXTRA_OUTPUT, getCachePhotoUri(getCachePhoto(BASE_CONTACT_EXTERNAL_PUBLIC_DIR,"")))
+
+            if (resolveActivity(packageManager) != null) {
+                startActivityForResult(this, INTENT_SAVE_PHOTO)
             } else {
                 toast(R.string.no_app_found)
             }

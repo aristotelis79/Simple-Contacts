@@ -1,5 +1,6 @@
 package com.simplemobiletools.contacts.pro.helpers
 
+import android.os.Environment
 import android.provider.ContactsContract.CommonDataKinds
 import com.simplemobiletools.contacts.pro.models.LocalContact
 
@@ -122,5 +123,8 @@ val localAccountTypes = arrayListOf("vnd.sec.contact.phone",
 const val TELEGRAM_PACKAGE = "org.telegram.messenger"
 const val SIGNAL_PACKAGE = "org.thoughtcrime.securesms"
 const val WHATSAPP_PACKAGE = "com.whatsapp"
+
+val BASE_CONTACT_EXTERNAL_PUBLIC_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)!!
+val BASE_CONTACT_EXTERNAL_PATH = BASE_CONTACT_EXTERNAL_PUBLIC_DIR.toString() //Environment.getExternalStorageDirectory().toString() + "/" + Environment.DIRECTORY_DOWNLOADS
 
 fun getEmptyLocalContact() = LocalContact(0, "", "", "", "", "", "", null, ArrayList(), ArrayList(), ArrayList(), 0, ArrayList(), "", ArrayList(), "", "", ArrayList(), ArrayList())

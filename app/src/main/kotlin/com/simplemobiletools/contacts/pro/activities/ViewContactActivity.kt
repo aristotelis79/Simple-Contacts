@@ -3,7 +3,6 @@ package com.simplemobiletools.contacts.pro.activities
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.Environment
 import android.provider.ContactsContract
 import android.view.Menu
 import android.view.MenuItem
@@ -181,7 +180,7 @@ class ViewContactActivity : ContactActivity() {
         setupWebsites()
         setupGroups()
         setupContactSource()
-        setupFolders()
+        setupFileDirItems()
     }
 
     private fun editContact() {
@@ -371,9 +370,9 @@ class ViewContactActivity : ContactActivity() {
         }
     }
 
-    private fun setupFolders(){
+    private fun setupFileDirItems(){
         contact_folders_holder.removeAllViews()
-        var folders = ContactsHelper(this).getFolderItems(Environment.getExternalStorageDirectory().toString() + "/" + Environment.DIRECTORY_DOWNLOADS) //getExternalFilesDir("ContanctName").toString()
+        var folders = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH) //getExternalFilesDir("ContanctName").toString()
         if(folders.any()){
             folders.sortedBy{!it.isDirectory}.forEach {
                 layoutInflater.inflate(R.layout.item_view_file_dir_item, contact_folders_holder,false).apply {

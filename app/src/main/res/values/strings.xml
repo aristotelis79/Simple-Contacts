@@ -107,6 +107,7 @@
     <string name="target_contact_source">Target contact source</string>
     <string name="include_contact_sources">Include contact sources</string>
     <string name="filename_without_vcf">Filename (without .vcf)</string>
+    <string name="choose_file">Choose file</string>
 
     <!-- Dialpad -->
     <string name="dialpad">Dialpad</string>

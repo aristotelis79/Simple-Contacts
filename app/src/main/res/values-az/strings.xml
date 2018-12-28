@@ -161,6 +161,7 @@
 
         This app is just one piece of a bigger series of apps. You can find the rest of them at https://www.simplemobiletools.com
     </string>
+    <string name="choose_file">"Bir fayl seçin "</string>
 
     <!--
         Haven't found some strings? There's more at

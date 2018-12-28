@@ -159,6 +159,7 @@
         
         Ez ditu iragarkirik ezta beharrezkoak ez diren baimenak. Guztiz kode irekikoa da eta koloreak pertsonalizagarriak dira. Aplikazio hau sorta handiago bateko zati bat baino ez da. Gainontzekoak ikusteko, jo https://www.simplemobiletools.com webgunera
     </string>
+    <string name="choose_file">"Hautatu fitxategia "</string>
 
     <!--
         Haven't found some strings? There's more at

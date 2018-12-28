@@ -183,8 +183,9 @@ fun lookupContactUri(lookup: String, context: Context): Uri? {
     }
 }
 
-fun Context.getCachePhoto(): File {
-    val imagesFolder = File(cacheDir, "my_cache")
+fun Context.getCachePhoto(customFolder: File? = null, child: String = "my_cache"): File {
+
+    var imagesFolder = File(customFolder ?: cacheDir, child)
     if (!imagesFolder.exists()) {
         imagesFolder.mkdirs()
     }
