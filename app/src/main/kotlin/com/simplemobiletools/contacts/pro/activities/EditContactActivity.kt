@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.ContactsContract.CommonDataKinds
 import android.provider.MediaStore
 import android.view.Menu
@@ -18,11 +19,14 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.PERMISSION_READ_CONTACTS
 import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_CONTACTS
+import com.simplemobiletools.commons.models.FileDirItem
 import com.simplemobiletools.commons.models.RadioItem
+import com.simplemobiletools.commons.views.MyTextView
 import com.simplemobiletools.contacts.pro.R
 import com.simplemobiletools.contacts.pro.dialogs.CustomLabelDialog
 import com.simplemobiletools.contacts.pro.dialogs.SelectGroupsDialog
@@ -32,6 +36,7 @@ import com.simplemobiletools.contacts.pro.models.*
 import kotlinx.android.synthetic.main.activity_edit_contact.*
 import kotlinx.android.synthetic.main.item_edit_address.view.*
 import kotlinx.android.synthetic.main.item_edit_email.view.*
+import kotlinx.android.synthetic.main.item_edit_folder.*
 import kotlinx.android.synthetic.main.item_edit_group.view.*
 import kotlinx.android.synthetic.main.item_edit_im.view.*
 import kotlinx.android.synthetic.main.item_edit_phone_number.view.*
@@ -39,6 +44,7 @@ import kotlinx.android.synthetic.main.item_edit_website.view.*
 import kotlinx.android.synthetic.main.item_event.view.*
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
+import java.lang.StringBuilder
 
 class EditContactActivity : ContactActivity() {
     private val INTENT_TAKE_PHOTO = 1
@@ -391,6 +397,7 @@ class EditContactActivity : ContactActivity() {
         setupEvents()
         setupGroups()
         setupContactSource()
+        setupFolders()
     }
 
     private fun setupNames() {
@@ -515,6 +522,42 @@ class EditContactActivity : ContactActivity() {
                 }
             }
         }
+    }
+
+    private fun setupFolders(){
+
+        var folders = ContactsHelper(this).getFolderItems(Environment.getExternalStorageDirectory().toString() + "/" + Environment.DIRECTORY_DOWNLOADS) //getExternalFilesDir("ContanctName").toString()
+        var folderList = this.findViewById<MyTextView>(R.id.contact_folder)
+        var folderText = StringBuilder()
+        folders.forEach{f -> folderText.append(f.name).append(", ")}
+        folderList.text = folderText
+
+
+
+/*        folders.forEachIndexed { index, event ->
+            var folderHolder = contact_folder_event.getChildAt(index)
+            if(folderHolder == null){
+                folderHolder = layoutInflater.inflate(R.layout.item_edit_folder, contact_folder_holder, false)
+                contact_folder_holder.addView(folderHolder)
+            }
+
+            (folderHolder as ViewGroup).apply {
+                val contactFolder = contact_folder.apply{
+                    //event.
+                    alpha = 1f
+                }
+                setupFolderTypePicker(this, if(event.isDirectory){FOLDER_TYPE} else {FILE_TYPE})
+
+                contact_folder_remove.apply{
+                    beVisible()
+                    applyColorFilter(getAdjustedPrimaryColor())
+                    background.applyColorFilter(config.textColor)
+                    setOnClickListener {
+                        removeFolder(contactFolder, this)
+                    }
+                }
+            }
+        }*/
     }
 
     private fun setupGroups() {
@@ -693,6 +736,10 @@ class EditContactActivity : ContactActivity() {
         }
     }
 
+    private fun setupFolderTypePicker(folderType: ViewGroup, type: Int = FILE_TYPE){
+
+    }
+
     private fun setupGroupsPicker(groupTitleField: TextView, group: Group? = null) {
         groupTitleField.apply {
             text = group?.title ?: getString(R.string.no_groups)
@@ -710,6 +757,11 @@ class EditContactActivity : ContactActivity() {
             alpha = 0.5f
         }
         removeContactEventButton.beGone()
+    }
+
+    private fun removeFolder(contactFolder: TextView,removeContactFolderButton: ImageView){
+        contactFolder.apply {  }
+        removeContactFolderButton.beGone()
     }
 
     private fun removeGroup(id: Long) {
@@ -957,6 +1009,14 @@ class EditContactActivity : ContactActivity() {
         return events
     }
 
+    private fun getFilledFolders(): ArrayList<FileDirItem>{
+
+/*        FilePickerDialog(this) {
+
+        }*/
+        return ArrayList()
+    }
+
     private fun getFilledWebsites(): ArrayList<String> {
         val websites = ArrayList<String>()
         val websitesCount = contact_websites_holder.childCount
@@ -1142,6 +1202,10 @@ class EditContactActivity : ContactActivity() {
         val eventValue = contentValues.getAsString(CommonDataKinds.Event.DATA1) ?: return
         val event = Event(eventValue, type)
         contact!!.events.add(event)
+    }
+
+    private fun parseFolder(contentValues: ContentValues){
+
     }
 
     private fun parseWebsite(contentValues: ContentValues) {

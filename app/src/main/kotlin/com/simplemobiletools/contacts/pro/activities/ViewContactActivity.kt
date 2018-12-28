@@ -3,6 +3,7 @@ package com.simplemobiletools.contacts.pro.activities
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Environment
 import android.provider.ContactsContract
 import android.view.Menu
 import android.view.MenuItem
@@ -16,6 +17,7 @@ import com.simplemobiletools.contacts.pro.dialogs.CallConfirmationDialog
 import com.simplemobiletools.contacts.pro.extensions.*
 import com.simplemobiletools.contacts.pro.helpers.*
 import kotlinx.android.synthetic.main.activity_view_contact.*
+import kotlinx.android.synthetic.main.item_view_folder.view.*
 import kotlinx.android.synthetic.main.item_event.view.*
 import kotlinx.android.synthetic.main.item_view_address.view.*
 import kotlinx.android.synthetic.main.item_view_email.view.*
@@ -154,6 +156,7 @@ class ViewContactActivity : ContactActivity() {
         contact_organization_image.applyColorFilter(textColor)
         contact_websites_image.applyColorFilter(textColor)
         contact_groups_image.applyColorFilter(textColor)
+        contact_folder_image.applyColorFilter(textColor)
 
         contact_send_sms.setOnClickListener { trySendSMS() }
         contact_start_call.setOnClickListener { tryStartCall(contact!!) }
@@ -177,6 +180,7 @@ class ViewContactActivity : ContactActivity() {
         setupWebsites()
         setupGroups()
         setupContactSource()
+        setupFolders()
     }
 
     private fun editContact() {
@@ -363,6 +367,37 @@ class ViewContactActivity : ContactActivity() {
         } else {
             contact_events_image.beGone()
             contact_events_holder.beGone()
+        }
+    }
+
+    private fun setupFolders(){
+        contact_folders_holder.removeAllViews()
+        var folders = ContactsHelper(this).getFolderItems(Environment.getExternalStorageDirectory().toString() + "/" + Environment.DIRECTORY_DOWNLOADS) //getExternalFilesDir("ContanctName").toString()
+        if(folders.any()){
+            folders.forEach {
+                layoutInflater.inflate(R.layout.item_view_folder, contact_folders_holder,false).apply {
+                    var file = it
+                    contact_folders_holder.addView(this)
+                    contact_folder.text = file.name
+                    contact_folder_type.text = if(file.isDirectory){"@string/Folder"}else{"@string/File"}
+                    contact_folder.alpha = if(file.isDirectory){0.5f}else{1f}
+
+                    if(file.isDirectory){
+                        //TODO
+                    }
+                    else{
+                        setOnClickListener {
+                            openFileIntent(file.path)
+                        }
+                    }
+                }
+            }
+            contact_folder_image.beVisible()
+            contact_folders_holder.beVisible()
+        }
+        else{
+            contact_folder_image.beGone()
+            contact_folders_holder.beGone()
         }
     }
 

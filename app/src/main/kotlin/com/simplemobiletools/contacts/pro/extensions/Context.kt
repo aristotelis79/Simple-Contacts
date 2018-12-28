@@ -30,6 +30,8 @@ import com.simplemobiletools.contacts.pro.models.Contact
 import com.simplemobiletools.contacts.pro.models.ContactSource
 import com.simplemobiletools.contacts.pro.models.Organization
 import java.io.File
+import android.webkit.MimeTypeMap
+import android.widget.Toast
 
 
 val Context.config: Config get() = Config.newInstance(applicationContext)
@@ -106,6 +108,25 @@ fun Context.openWebsiteIntent(url: String) {
         } else {
             toast(R.string.no_app_found)
         }
+    }
+}
+
+fun Context.openFileIntent(filePath: String){
+
+    val file = File(filePath)
+    val uri = Uri.fromFile(file)
+    if(uri == null){
+        toast("file don't exist")
+        return
+    }
+
+    Intent(Intent.ACTION_VIEW, uri).apply {
+        
+        val ext = MimeTypeMap.getFileExtensionFromUrl(file.name ?: "") ?: ""
+        var type =  MimeTypeMap.getSingleton()!!.getMimeTypeFromExtension(ext) ?: "*/*"
+
+        this.setDataAndType(uri, type)
+        startActivity(this)
     }
 }
 

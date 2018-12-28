@@ -7,6 +7,7 @@ import android.content.*
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.CallLog
@@ -17,12 +18,16 @@ import android.provider.ContactsContract.CommonDataKinds.Note
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.SparseArray
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.simplemobiletools.commons.adapters.FilepickerItemsAdapter
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.*
+import com.simplemobiletools.commons.models.FileDirItem
 import com.simplemobiletools.contacts.pro.R
 import com.simplemobiletools.contacts.pro.extensions.*
 import com.simplemobiletools.contacts.pro.models.*
 import com.simplemobiletools.contacts.pro.overloads.times
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -1625,5 +1630,36 @@ class ContactsHelper(val context: Context) {
                 context.showErrorToast(e)
             }
         }.start()
+    }
+
+    fun getFolderItems(path: String ,
+                       getProperFileSize: Boolean = false,
+                       showHidden: Boolean = false
+                       //currPath: String = Environment.getExternalStorageDirectory().toString(),
+                       //pickFile: Boolean = true,
+                       //callback: (List<FileDirItem>)
+                       //-> Unit)
+                        ): List<FileDirItem> {
+
+        val items = java.util.ArrayList<FileDirItem>()
+        val base = File(path)
+        val files = base.listFiles()
+        if (files == null) {
+            //callback(items)
+            return ArrayList()
+        }
+
+        for (file in files) {
+            if (!showHidden && file.isHidden) {
+                continue
+            }
+
+            val curPath = file.absolutePath
+            val curName = curPath.getFilenameFromPath()
+            val size = if (getProperFileSize) file.getProperSize(showHidden) else file.length()
+            items.add(FileDirItem(curPath, curName, file.isDirectory, file.getDirectChildrenCount(showHidden), size))
+        }
+        //callback(items)
+        return items
     }
 }
