@@ -124,6 +124,7 @@ const val TELEGRAM_PACKAGE = "org.telegram.messenger"
 const val SIGNAL_PACKAGE = "org.thoughtcrime.securesms"
 const val WHATSAPP_PACKAGE = "com.whatsapp"
 
+//TODO Change Default Public dir with Per Name Contact folder
 val BASE_CONTACT_EXTERNAL_PUBLIC_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)!!
 val BASE_CONTACT_EXTERNAL_PATH = "$BASE_CONTACT_EXTERNAL_PUBLIC_DIR/" //getExternalFilesDir("ContanctName").toString() //Environment.getExternalStorageDirectory().toString() + "/" + Environment.DIRECTORY_DOWNLOADS
 

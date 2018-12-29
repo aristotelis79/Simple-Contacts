@@ -534,10 +534,10 @@ class EditContactActivity : ContactActivity() {
         var fileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH)
 
         fileDirItemsList.sortedBy { !it.isDirectory }.forEachIndexed { index, fileDirItem ->
-            var fileDirHolder = contact_fileDirItem.getChildAt(index)
+            var fileDirHolder = contact_fileDirItems_holder.getChildAt(index)
             if(fileDirHolder == null){
-                fileDirHolder = layoutInflater.inflate(R.layout.item_edit_file_dir_item, contact_fileDirItem, false)
-                contact_fileDirItem.addView(fileDirHolder)
+                fileDirHolder = layoutInflater.inflate(R.layout.item_edit_file_dir_item, contact_fileDirItems_holder, false)
+                contact_fileDirItems_holder.addView(fileDirHolder)
             }
 
             (fileDirHolder as ViewGroup).apply {
@@ -919,6 +919,8 @@ class EditContactActivity : ContactActivity() {
             val jobPosition = contact_organization_job_position.value
             organization = Organization(company, jobPosition)
 
+            updateFileDirItems()
+
             Thread {
                 config.lastUsedContactSource = source
                 when {
@@ -1013,9 +1015,23 @@ class EditContactActivity : ContactActivity() {
         return events
     }
 
-    private fun getFilledFileDirItems(): ArrayList<FileDirItem> {
-        //TODO Get the remain file /folder and delete the other
-        return ArrayList()
+    private fun updateFileDirItems() {
+        var beginFileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH)
+        var resultFileDirItemsList = ArrayList<FileDirItem>()
+
+        for (i in 0 until beginFileDirItemsList.count()) {
+            val fileDirItemHolder = contact_fileDirItems_holder.getChildAt(i)
+            val fileDirItem = fileDirItemHolder.contact_fileDirItem.value
+
+            if(beginFileDirItemsList.firstOrNull{ it.name == fileDirItem } != null)
+                resultFileDirItemsList.add(beginFileDirItemsList[i])
+        }
+        var deletedFileDirItems = beginFileDirItemsList.minus(resultFileDirItemsList)
+
+        for (item in deletedFileDirItems){
+            ContactsHelper(this).delete(ContactsHelper(this).toFile(item.path))
+        }
+
     }
 
     private fun getFilledWebsites(): ArrayList<String> {
@@ -1219,10 +1235,6 @@ class EditContactActivity : ContactActivity() {
         val eventValue = contentValues.getAsString(CommonDataKinds.Event.DATA1) ?: return
         val event = Event(eventValue, type)
         contact!!.events.add(event)
-    }
-
-    private fun parseFileDirItem(contentValues: ContentValues){
-        //TODO Get the remain file /folder and delete the other
     }
 
     private fun parseWebsite(contentValues: ContentValues) {

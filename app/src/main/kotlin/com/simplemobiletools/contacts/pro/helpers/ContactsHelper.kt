@@ -1676,7 +1676,35 @@ class ContactsHelper(val context: Context) {
             if (!isMoved) {
                 throw FileSystemException(fileToMove, reason = "Something go wrong")
             }
-        } catch (ex: java.lang.Exception) {
+
+        } catch (ex: Exception) {
+            context.showErrorToast(ex)
+            ex.printStackTrace()
+        }
+    }
+
+    fun toFile(path: String): File?{
+        try {
+            return File(path)
+        }catch (ex : Exception){
+            context.showErrorToast(ex)
+        }
+        return null
+    }
+
+    fun delete(fileOrDir: File?){
+        if(fileOrDir == null)
+            return
+
+        if(fileOrDir.isDirectory)
+            for(f in fileOrDir.listFiles())
+                delete(f)
+
+        try {
+            fileOrDir.delete()
+
+        }catch (ex: Exception){
+            context.showErrorToast(ex)
             ex.printStackTrace()
         }
     }
