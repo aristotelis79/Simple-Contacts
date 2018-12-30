@@ -19,7 +19,7 @@
     <string name="add_to_existing_contact">Добавить к существующему контакту</string>
     <string name="must_make_default_dialer">Вы должны сделать \"Simple Contacts\" приложением по умолчанию для набора номера для использования блокировки номеров.</string>
     <string name="set_to_default">Сделать по умолчанию</string>
-    <string name="call_number">Call number</string>
+    <string name="call_number">Набрать номер</string>
 
     <!-- Placeholders -->
     <string name="no_contacts_found">Контакты не найдены</string>
@@ -151,7 +151,7 @@
 
     <!-- Strings displayed only on Google Playstore. Optional, but good to have -->
     <!-- Short description has to have less than 80 chars -->
-    <string name="app_short_description">Приложение для управления контактами без рекламы.</string>
+    <string name="app_short_description">An app for managing your contacts without ads, respecting your privacy.</string>
     <string name="app_long_description">
         Простое приложение для создания и управления контактами из любого источника. Контакты могут быть сохранены только на вашем устройстве, а также синхронизированы через Google или другие учётные записи. Вы можете отображать свои любимые контакты в отдельном списке.
 
