@@ -33,7 +33,6 @@ import com.simplemobiletools.contacts.pro.models.ContactSource
 import com.simplemobiletools.contacts.pro.models.Organization
 import java.io.File
 import android.webkit.MimeTypeMap
-import android.widget.Toast
 
 
 val Context.config: Config get() = Config.newInstance(applicationContext)

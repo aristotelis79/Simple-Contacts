@@ -7,7 +7,6 @@ import android.content.*
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.CallLog
@@ -18,8 +17,6 @@ import android.provider.ContactsContract.CommonDataKinds.Note
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.SparseArray
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.simplemobiletools.commons.adapters.FilepickerItemsAdapter
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.*
 import com.simplemobiletools.commons.models.FileDirItem
@@ -1667,45 +1664,5 @@ class ContactsHelper(val context: Context) {
             items.add(FileDirItem(curPath, curName, file.isDirectory, file.getDirectChildrenCount(showHidden), size))
         }
         return items
-    }
-
-    fun moveFile(source: String, target: String) {
-        try {
-            val fileToMove = File(source)
-            val isMoved = fileToMove.renameTo(File(target))
-            if (!isMoved) {
-                throw FileSystemException(fileToMove, reason = "Something go wrong")
-            }
-
-        } catch (ex: Exception) {
-            context.showErrorToast(ex)
-            ex.printStackTrace()
-        }
-    }
-
-    fun toFile(path: String): File?{
-        try {
-            return File(path)
-        }catch (ex : Exception){
-            context.showErrorToast(ex)
-        }
-        return null
-    }
-
-    fun delete(fileOrDir: File?){
-        if(fileOrDir == null)
-            return
-
-        if(fileOrDir.isDirectory)
-            for(f in fileOrDir.listFiles())
-                delete(f)
-
-        try {
-            fileOrDir.delete()
-
-        }catch (ex: Exception){
-            context.showErrorToast(ex)
-            ex.printStackTrace()
-        }
     }
 }

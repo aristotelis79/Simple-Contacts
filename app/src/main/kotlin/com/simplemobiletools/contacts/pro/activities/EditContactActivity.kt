@@ -126,6 +126,17 @@ class EditContactActivity : ContactActivity() {
                 INTENT_CROP_PHOTO -> updateContactPhoto(lastPhotoIntentUri.toString(), contact_photo)
                 INTENT_SAVE_PHOTO -> toast(R.string.file_saved)
             }
+        } else {
+            when (requestCode) {
+                INTENT_SAVE_PHOTO -> {
+                    try {
+                        if (lastPhotoIntentUri != null)
+                            contentResolver.delete(lastPhotoIntentUri,null,null)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
         }
     }
 
@@ -258,7 +269,7 @@ class EditContactActivity : ContactActivity() {
         contact_websites_add_new.setOnClickListener { addNewWebsiteField() }
         contact_groups_add_new.setOnClickListener { showSelectGroupsDialog() }
         contact_source.setOnClickListener { showSelectContactSourceDialog() }
-        contact_fileDirItem_add_new.setOnClickListener{ tryAddFileDirItem()  }
+        contact_fileDirItem_add_new.setOnClickListener  { tryAddFileDirItem() }
 
         setupFieldVisibility()
 
@@ -542,8 +553,9 @@ class EditContactActivity : ContactActivity() {
 
             (fileDirHolder as ViewGroup).apply {
                 val contactFolder = contact_fileDirItem.apply{
-                    text = fileDirItem.name
-                    alpha = 1f
+                    setText(fileDirItem.name)
+                    tag = fileDirItem.name
+                    alpha = if(fileDirItem.isDirectory){0.5f}else{1f}
                 }
 
                 contact_fileDirItem_remove.apply{
@@ -551,6 +563,7 @@ class EditContactActivity : ContactActivity() {
                     applyColorFilter(getAdjustedPrimaryColor())
                     background.applyColorFilter(config.textColor)
                     setOnClickListener {
+
                         removeFileDirItem(contactFolder, this)
                     }
                 }
@@ -1020,18 +1033,25 @@ class EditContactActivity : ContactActivity() {
         var resultFileDirItemsList = ArrayList<FileDirItem>()
 
         for (i in 0 until beginFileDirItemsList.count()) {
-            val fileDirItemHolder = contact_fileDirItems_holder.getChildAt(i)
-            val fileDirItem = fileDirItemHolder.contact_fileDirItem.value
+            val fileDirItemHolder = contact_fileDirItems_holder.getChildAt(i) ?: return
 
-            if(beginFileDirItemsList.firstOrNull{ it.name == fileDirItem } != null)
+            var fileDirItemNewName = fileDirItemHolder.contact_fileDirItem.value
+            val fileDirItemOriginalName = fileDirItemHolder.contact_fileDirItem.tag ?: fileDirItemNewName
+
+            if(beginFileDirItemsList.firstOrNull{ it.name == fileDirItemOriginalName } != null){
+
+                if(fileDirItemOriginalName != fileDirItemNewName){
+                    var newPath = beginFileDirItemsList[i].path.getParentPath() +"/"+ fileDirItemNewName
+                    renameFile(beginFileDirItemsList[i].path, newPath)
+                }
                 resultFileDirItemsList.add(beginFileDirItemsList[i])
+            }
         }
         var deletedFileDirItems = beginFileDirItemsList.minus(resultFileDirItemsList)
 
         for (item in deletedFileDirItems){
-            ContactsHelper(this).delete(ContactsHelper(this).toFile(item.path))
+            deleteFileBg(item, true)
         }
-
     }
 
     private fun getFilledWebsites(): ArrayList<String> {
@@ -1189,8 +1209,17 @@ class EditContactActivity : ContactActivity() {
         RadioGroupDialog(this, items) {
             when (it as Int) {
                 SAVE_PHOTO -> startSavePhotoIntent()
-                CHOOSE_FILE -> FilePickerDialog(this,currPath = BASE_CONTACT_EXTERNAL_PATH,pickFile = true,showFAB = true){
-                    ContactsHelper(this).moveFile("$BASE_CONTACT_EXTERNAL_PATH${it.getFilenameFromPath()}", it)
+                CHOOSE_FILE -> FilePickerDialog(this, currPath = BASE_CONTACT_EXTERNAL_PATH, pickFile = true, showFAB = true) { oldPath ->
+                    val newPath = "$BASE_CONTACT_EXTERNAL_PATH${oldPath.getFilenameFromPath()}"
+                    if (newPath != oldPath) {
+                        renameFile(oldPath, newPath) { result ->
+                            toast(if(result){
+                                R.string.moving_success
+                            }else{
+                                R.string.moving_success_partial}
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -1278,10 +1307,9 @@ class EditContactActivity : ContactActivity() {
 
     private fun startSavePhotoIntent() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-
-            putExtra(MediaStore.EXTRA_OUTPUT, getCachePhotoUri(getCachePhoto(BASE_CONTACT_EXTERNAL_PUBLIC_DIR,"")))
-
             if (resolveActivity(packageManager) != null) {
+                lastPhotoIntentUri = getCachePhotoUri(getCachePhoto(BASE_CONTACT_EXTERNAL_PUBLIC_DIR,""))
+                putExtra(MediaStore.EXTRA_OUTPUT,lastPhotoIntentUri)
                 startActivityForResult(this, INTENT_SAVE_PHOTO)
             } else {
                 toast(R.string.no_app_found)
