@@ -269,7 +269,10 @@ class EditContactActivity : ContactActivity() {
         contact_websites_add_new.setOnClickListener { addNewWebsiteField() }
         contact_groups_add_new.setOnClickListener { showSelectGroupsDialog() }
         contact_source.setOnClickListener { showSelectContactSourceDialog() }
-        contact_fileDirItem_add_new.setOnClickListener  { tryAddFileDirItem() }
+        contact_fileDirItem_add_new.setOnClickListener  {
+                                                            hideRemoveFileDirItemButtons()
+                                                            tryAddFileDirItem()
+                                                        }
 
         setupFieldVisibility()
 
@@ -542,7 +545,7 @@ class EditContactActivity : ContactActivity() {
 
     private fun setupFileDirItems(){
 
-        var fileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH)
+        val fileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH)
 
         fileDirItemsList.sortedBy { !it.isDirectory }.forEachIndexed { index, fileDirItem ->
             var fileDirHolder = contact_fileDirItems_holder.getChildAt(index)
@@ -563,7 +566,7 @@ class EditContactActivity : ContactActivity() {
                     applyColorFilter(getAdjustedPrimaryColor())
                     background.applyColorFilter(config.textColor)
                     setOnClickListener {
-
+                        contact_fileDirItem_add_new.beGone()
                         removeFileDirItem(contactFolder, this)
                     }
                 }
@@ -1029,25 +1032,27 @@ class EditContactActivity : ContactActivity() {
     }
 
     private fun updateFileDirItems() {
-        var beginFileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH)
-        var resultFileDirItemsList = ArrayList<FileDirItem>()
+        val beginFileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH)
+        val resultFileDirItemsList = ArrayList<FileDirItem>()
+        val fileDirItems = maxOf(contact_fileDirItems_holder.childCount, beginFileDirItemsList.count())
 
-        for (i in 0 until beginFileDirItemsList.count()) {
+        for (i in 0 until fileDirItems) {
             val fileDirItemHolder = contact_fileDirItems_holder.getChildAt(i) ?: return
 
-            var fileDirItemNewName = fileDirItemHolder.contact_fileDirItem.value
+            val fileDirItemNewName = fileDirItemHolder.contact_fileDirItem.value
             val fileDirItemOriginalName = fileDirItemHolder.contact_fileDirItem.tag ?: fileDirItemNewName
 
-            if(beginFileDirItemsList.firstOrNull{ it.name == fileDirItemOriginalName } != null){
+            val fileDirItem = beginFileDirItemsList.firstOrNull{ it.name == fileDirItemOriginalName }
+            if( fileDirItem != null){
 
                 if(fileDirItemOriginalName != fileDirItemNewName){
-                    var newPath = beginFileDirItemsList[i].path.getParentPath() +"/"+ fileDirItemNewName
-                    renameFile(beginFileDirItemsList[i].path, newPath)
+                    val newPath = fileDirItem.path.getParentPath() +"/"+ fileDirItemNewName
+                    renameFile(fileDirItem.path, newPath)
                 }
-                resultFileDirItemsList.add(beginFileDirItemsList[i])
+                resultFileDirItemsList.add(fileDirItem)
             }
         }
-        var deletedFileDirItems = beginFileDirItemsList.minus(resultFileDirItemsList)
+        val deletedFileDirItems = beginFileDirItemsList.minus(resultFileDirItemsList)
 
         for (item in deletedFileDirItems){
             deleteFileBg(item, true)
@@ -1196,6 +1201,20 @@ class EditContactActivity : ContactActivity() {
                 TAKE_PHOTO -> startTakePhotoIntent()
                 CHOOSE_PHOTO -> startChoosePhotoIntent()
                 else -> showPhotoPlaceholder(contact_photo)
+            }
+        }
+    }
+
+    private fun hideRemoveFileDirItemButtons(){
+
+        val fileDirItems= contact_fileDirItems_holder.childCount
+        for(i in 0 until fileDirItems){
+            var fileDirHolder = contact_fileDirItems_holder.getChildAt(i)
+
+            (fileDirHolder as ViewGroup).apply {
+                contact_fileDirItem_remove.apply {
+                    beGone()
+                }
             }
         }
     }
