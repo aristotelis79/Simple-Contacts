@@ -124,7 +124,10 @@ class EditContactActivity : ContactActivity() {
             when (requestCode) {
                 INTENT_TAKE_PHOTO, INTENT_CHOOSE_PHOTO -> startCropPhotoIntent(lastPhotoIntentUri, resultData?.data)
                 INTENT_CROP_PHOTO -> updateContactPhoto(lastPhotoIntentUri.toString(), contact_photo)
-                INTENT_SAVE_PHOTO -> toast(R.string.file_saved)
+                INTENT_SAVE_PHOTO -> {
+                                        setupFileDirItems()
+                                        toast(R.string.file_saved)
+                                    }
             }
         } else {
             when (requestCode) {
@@ -544,10 +547,9 @@ class EditContactActivity : ContactActivity() {
     }
 
     private fun setupFileDirItems(){
+        val fileDirItemsList = ContactsHelper(this).getContactsItems(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)
 
-        val fileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH)
-
-        fileDirItemsList.sortedBy { !it.isDirectory }.forEachIndexed { index, fileDirItem ->
+        fileDirItemsList?.sortedBy { !it.isDirectory }.forEachIndexed { index, fileDirItem ->
             var fileDirHolder = contact_fileDirItems_holder.getChildAt(index)
             if(fileDirHolder == null){
                 fileDirHolder = layoutInflater.inflate(R.layout.item_edit_file_dir_item, contact_fileDirItems_holder, false)
@@ -1032,7 +1034,7 @@ class EditContactActivity : ContactActivity() {
     }
 
     private fun updateFileDirItems() {
-        val beginFileDirItemsList = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH)
+        val beginFileDirItemsList = ContactsHelper(this).getContactsItems(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)
         val resultFileDirItemsList = ArrayList<FileDirItem>()
         val fileDirItems = maxOf(contact_fileDirItems_holder.childCount, beginFileDirItemsList.count())
 
@@ -1228,15 +1230,19 @@ class EditContactActivity : ContactActivity() {
         RadioGroupDialog(this, items) {
             when (it as Int) {
                 SAVE_PHOTO -> startSavePhotoIntent()
-                CHOOSE_FILE -> FilePickerDialog(this, currPath = BASE_CONTACT_EXTERNAL_PATH, pickFile = true, showFAB = true) { oldPath ->
-                    val newPath = "$BASE_CONTACT_EXTERNAL_PATH${oldPath.getFilenameFromPath()}"
-                    if (newPath != oldPath) {
-                        renameFile(oldPath, newPath) { result ->
-                            toast(if(result){
-                                R.string.moving_success
-                            }else{
-                                R.string.moving_success_partial}
-                            )
+                CHOOSE_FILE -> {
+                    val contactPath = ContactsHelper(this).getDefaultContactFolder(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)?.path ?: return@RadioGroupDialog
+                    FilePickerDialog(this, currPath = contactPath, pickFile = true, showFAB = true) { oldPath ->
+                        val newPath = "$contactPath/${oldPath.getFilenameFromPath()}"
+                        if (newPath != oldPath) {
+                            renameFile(oldPath, newPath) { result ->
+                                toast(if (result) {
+                                    R.string.moving_success
+                                } else {
+                                    R.string.moving_success_partial
+                                }
+                                )
+                            }
                         }
                     }
                 }
@@ -1327,8 +1333,10 @@ class EditContactActivity : ContactActivity() {
     private fun startSavePhotoIntent() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
             if (resolveActivity(packageManager) != null) {
-                lastPhotoIntentUri = getCachePhotoUri(getCachePhoto(BASE_CONTACT_EXTERNAL_PUBLIC_DIR,""))
+                val contactPath = ContactsHelper(this@EditContactActivity).getDefaultContactFolder(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)
+                lastPhotoIntentUri = getCachePhotoUri(getCachePhoto(contactPath,""))
                 putExtra(MediaStore.EXTRA_OUTPUT,lastPhotoIntentUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 startActivityForResult(this, INTENT_SAVE_PHOTO)
             } else {
                 toast(R.string.no_app_found)

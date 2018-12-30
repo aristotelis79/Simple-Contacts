@@ -7,6 +7,7 @@ import android.content.*
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.CallLog
@@ -1644,14 +1645,29 @@ class ContactsHelper(val context: Context) {
         }.start()
     }
 
-    fun getFolderItems(path: String ,
-                       getProperFileSize: Boolean = false,
-                       showHidden: Boolean = false
-                        ): List<FileDirItem> {
+    fun getDefaultContactFolder(fName: String?, sName: String?, phone: String? ): File? {
+        if(fName.isNullOrBlank() && sName.isNullOrBlank() && phone.isNullOrBlank()){
+            return null
+        }
+        var firstNumber = maxOf(0,(phone?.lastIndex)?.minus(2)?:0)
+        var last3Num = phone?.substring(firstNumber, phone?.lastIndex!!.plus(1))
+        return File(Environment.getExternalStoragePublicDirectory(BASE_CONTACT_EXTERNAL_PUBLIC_DIR), "$fName"+"_$sName"+"_$last3Num"+"/")
+    }
 
-        val items = java.util.ArrayList<FileDirItem>()
-        val base = File(path)
-        val files = base.listFiles() ?: return ArrayList()
+    fun getContactsItems(fName: String?, sName: String?, phone: String? ): List<FileDirItem>{
+
+        var contactFolder = getDefaultContactFolder(fName,sName,phone) ?: return ArrayList()
+
+        if (!contactFolder.exists()) {
+            contactFolder.mkdirs()
+        }
+
+        return getFolderItems(contactFolder)
+    }
+
+    private fun getFolderItems(folder: File, getProperFileSize: Boolean = false, showHidden: Boolean = false ): List<FileDirItem> {
+        val items = ArrayList<FileDirItem>()
+        val files = folder.listFiles() ?: return ArrayList()
 
         for (file in files) {
             if (!showHidden && file.isHidden) {

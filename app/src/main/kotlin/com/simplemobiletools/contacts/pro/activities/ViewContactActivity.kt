@@ -372,7 +372,7 @@ class ViewContactActivity : ContactActivity() {
 
     private fun setupFileDirItems(){
         contact_folders_holder.removeAllViews()
-        var folders = ContactsHelper(this).getFolderItems(BASE_CONTACT_EXTERNAL_PATH)
+        var folders = ContactsHelper(this).getContactsItems(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)
         if(folders.any()){
             folders.sortedBy{!it.isDirectory}.forEach {
                 layoutInflater.inflate(R.layout.item_view_file_dir_item, contact_folders_holder,false).apply {
