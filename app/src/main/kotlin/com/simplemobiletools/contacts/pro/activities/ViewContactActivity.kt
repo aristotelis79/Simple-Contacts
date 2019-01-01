@@ -12,6 +12,7 @@ import android.widget.RelativeLayout
 import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.PERMISSION_READ_CONTACTS
+import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_STORAGE
 import com.simplemobiletools.contacts.pro.R
 import com.simplemobiletools.contacts.pro.dialogs.CallConfirmationDialog
 import com.simplemobiletools.contacts.pro.extensions.*
@@ -180,7 +181,11 @@ class ViewContactActivity : ContactActivity() {
         setupWebsites()
         setupGroups()
         setupContactSource()
-        setupFileDirItems()
+        handlePermission(PERMISSION_WRITE_STORAGE) {
+            if (it) {
+                setupFileDirItems()
+            }
+        }
     }
 
     private fun editContact() {

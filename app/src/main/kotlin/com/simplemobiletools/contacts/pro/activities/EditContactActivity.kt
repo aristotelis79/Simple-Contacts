@@ -23,6 +23,7 @@ import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.PERMISSION_READ_CONTACTS
 import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_CONTACTS
+import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_STORAGE
 import com.simplemobiletools.commons.models.FileDirItem
 import com.simplemobiletools.commons.models.RadioItem
 import com.simplemobiletools.contacts.pro.R
@@ -63,6 +64,7 @@ class EditContactActivity : ContactActivity() {
     private var highlightLastPhoneNumber = false
     private var numberViewToColor: EditText? = null
     private var originalContactSource = ""
+    private var hasWriteStoragePermission = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -419,7 +421,12 @@ class EditContactActivity : ContactActivity() {
         setupEvents()
         setupGroups()
         setupContactSource()
-        setupFileDirItems()
+        handlePermission(PERMISSION_WRITE_STORAGE) {
+            if (it) {
+                hasWriteStoragePermission = true
+                setupFileDirItems()
+            }
+        }
     }
 
     private fun setupNames() {
@@ -937,7 +944,8 @@ class EditContactActivity : ContactActivity() {
             val jobPosition = contact_organization_job_position.value
             organization = Organization(company, jobPosition)
 
-            updateFileDirItems()
+            if(hasWriteStoragePermission)
+                updateFileDirItems()
 
             Thread {
                 config.lastUsedContactSource = source
