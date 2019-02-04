@@ -162,6 +162,7 @@
         Bu uygulama, daha büyük bir uygulama serisinden sadece bir parça. Geri kalanı http://www.simplemobiletools.com adresinde bulabilirsiniz
     </string>
     <string name="choose_file">" Bir dosya seç"</string>
+    <string name="manage_external_contact_file_dir">File Store Management</string>
 
     <!--
         Haven't found some strings? There's more at

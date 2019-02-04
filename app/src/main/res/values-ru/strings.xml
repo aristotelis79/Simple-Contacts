@@ -162,6 +162,7 @@
         Это приложение — всего лишь частица из большой серии приложений. Вы можете найти остальные на https://www.simplemobiletools.com
     </string>
     <string name="choose_file">Выбрать файл</string>
+    <string name="manage_external_contact_file_dir">File Store Management</string>
 
     <!--
         Haven't found some strings? There's more at

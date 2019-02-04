@@ -1,12 +1,20 @@
 package com.simplemobiletools.contacts.pro.helpers
 
 import android.content.Context
+import android.os.Environment
 import com.simplemobiletools.commons.helpers.BaseConfig
 
 class Config(context: Context) : BaseConfig(context) {
     companion object {
         fun newInstance(context: Context) = Config(context)
     }
+    var selectedStoragePathForContactFiles : String
+        get() {
+            var externalPath = Environment.getExternalStoragePublicDirectory(BASE_CONTACT_EXTERNAL_PUBLIC_DIR).absolutePath
+            return prefs.getString(CONTACT_EXTERNAL_PUBLIC_DIR_KEY, externalPath)
+        }
+        set(selectedStoragePathForContactFiles) = prefs.edit().putString(CONTACT_EXTERNAL_PUBLIC_DIR_KEY,selectedStoragePathForContactFiles + BASE_CONTACT_EXTERNAL_PUBLIC_DIR).apply()
+
 
     var ignoredContactSources: HashSet<String>
         get() = prefs.getStringSet(IGNORED_CONTACT_SOURCES, hashSetOf(".")) as HashSet

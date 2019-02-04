@@ -162,6 +162,7 @@
         Cette application fait partie d\'une plus grande suite. Vous pouvez trouver les autres applications sur https://www.simplemobiletools.com
     </string>
     <string name="choose_file">Choisir une fichier</string>
+    <string name="manage_external_contact_file_dir">File Store Management</string>
 
     <!--
         Haven't found some strings? There's more at

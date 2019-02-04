@@ -162,6 +162,7 @@
         Ši programėle yra vienintelė iš keletos mūsų programėlių. Likusias Jūs galite rasti čia https://www.simplemobiletools.com
     </string>
     <string name="choose_file">Pasirinkite failą</string>
+    <string name="manage_external_contact_file_dir">File Store Management</string>
 
     <!--
         Haven't found some strings? There's more at

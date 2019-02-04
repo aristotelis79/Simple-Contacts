@@ -4,9 +4,9 @@ import android.annotation.TargetApi
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
-import com.simplemobiletools.commons.extensions.beVisibleIf
-import com.simplemobiletools.commons.extensions.updateTextColors
+import com.simplemobiletools.commons.extensions.*
 import com.simplemobiletools.commons.helpers.isNougatPlus
 import com.simplemobiletools.commons.models.RadioItem
 import com.simplemobiletools.contacts.pro.R
@@ -17,6 +17,7 @@ import com.simplemobiletools.contacts.pro.helpers.ON_CLICK_CALL_CONTACT
 import com.simplemobiletools.contacts.pro.helpers.ON_CLICK_EDIT_CONTACT
 import com.simplemobiletools.contacts.pro.helpers.ON_CLICK_VIEW_CONTACT
 import kotlinx.android.synthetic.main.activity_settings.*
+import java.io.File
 import java.util.*
 
 class SettingsActivity : SimpleActivity() {
@@ -32,6 +33,7 @@ class SettingsActivity : SimpleActivity() {
         setupManageShownContactFields()
         setupManageShownTabs()
         setupManageBlockedNumbers()
+        setupManageFilesStorage()
         setupUseEnglish()
         setupShowInfoBubble()
         setupShowContactThumbnails()
@@ -44,6 +46,19 @@ class SettingsActivity : SimpleActivity() {
         setupShowDialpadButton()
         setupOnContactClick()
         updateTextColors(settings_holder)
+    }
+
+    private fun setupManageFilesStorage() {
+        settings_manage_external_contact_file_dir_holder.setOnClickListener{
+           FilePickerDialog(this, currPath = "/",pickFile = false) { path ->
+               this.config.selectedStoragePathForContactFiles = path
+                toast(if (!path?.isNullOrEmpty()) {
+                    R.string.moving_success
+                } else {
+                    R.string.moving_success_partial
+                })
+            }
+        }
     }
 
     private fun setupCustomizeColors() {

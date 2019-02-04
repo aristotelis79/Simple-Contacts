@@ -1651,7 +1651,7 @@ class ContactsHelper(val context: Context) {
         }
         var firstNumber = maxOf(0,(phone?.lastIndex)?.minus(2)?:0)
         var last3Num = phone?.substring(firstNumber, phone?.lastIndex!!.plus(1))
-        return File(Environment.getExternalStoragePublicDirectory(BASE_CONTACT_EXTERNAL_PUBLIC_DIR), "$fName"+"_$sName"+"_$last3Num"+"/")
+        return File(context.config.selectedStoragePathForContactFiles, "$fName"+"_$sName"+"_$last3Num"+"/")
     }
 
     fun getContactsItems(fName: String?, sName: String?, phone: String? ): List<FileDirItem>{
