@@ -10,10 +10,10 @@ class Config(context: Context) : BaseConfig(context) {
     }
     var selectedStoragePathForContactFiles : String
         get() {
-            var externalPath = Environment.getExternalStoragePublicDirectory(BASE_CONTACT_EXTERNAL_PUBLIC_DIR).absolutePath
+            var externalPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath
             return prefs.getString(CONTACT_EXTERNAL_PUBLIC_DIR_KEY, externalPath)
         }
-        set(selectedStoragePathForContactFiles) = prefs.edit().putString(CONTACT_EXTERNAL_PUBLIC_DIR_KEY,selectedStoragePathForContactFiles + BASE_CONTACT_EXTERNAL_PUBLIC_DIR).apply()
+        set(selectedStoragePathForContactFiles) = prefs.edit().putString(CONTACT_EXTERNAL_PUBLIC_DIR_KEY,selectedStoragePathForContactFiles).apply()
 
 
     var ignoredContactSources: HashSet<String>

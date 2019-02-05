@@ -18,9 +18,11 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.documentfile.provider.DocumentFile
 import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.extensions.*
+import com.simplemobiletools.commons.helpers.OPEN_DOCUMENT_TREE
 import com.simplemobiletools.commons.helpers.PERMISSION_READ_CONTACTS
 import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_CONTACTS
 import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_STORAGE
@@ -1342,7 +1344,17 @@ class EditContactActivity : ContactActivity() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
             if (resolveActivity(packageManager) != null) {
                 val contactPath = ContactsHelper(this@EditContactActivity).getDefaultContactFolder(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)
-                lastPhotoIntentUri = getCachePhotoUri(getCachePhoto(contactPath,""))
+
+                if (needsStupidWritePermissions(contactPath!!.absolutePath)){
+                    this@EditContactActivity.createDirectorySync(contactPath!!.absolutePath)
+                    var photo = contactPath!!.absolutePath + "/Photo_${System.currentTimeMillis()}.jpg"
+                    var documentFile = this@EditContactActivity.getDocumentFile(photo.getParentPath())
+                    documentFile!!.createFile(photo.getMimeType(), photo.getFilenameFromPath())
+                    lastPhotoIntentUri = documentFile!!.uri
+                }
+                else{
+                    lastPhotoIntentUri = getCachePhotoUri(getCachePhoto(contactPath,""))
+                }
                 putExtra(MediaStore.EXTRA_OUTPUT,lastPhotoIntentUri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 startActivityForResult(this, INTENT_SAVE_PHOTO)
@@ -1351,7 +1363,6 @@ class EditContactActivity : ContactActivity() {
             }
         }
     }
-
     private fun getPhoneNumberTypeId(value: String) = when (value) {
         getString(R.string.mobile) -> CommonDataKinds.Phone.TYPE_MOBILE
         getString(R.string.home) -> CommonDataKinds.Phone.TYPE_HOME
