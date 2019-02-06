@@ -22,7 +22,6 @@ import androidx.documentfile.provider.DocumentFile
 import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.extensions.*
-import com.simplemobiletools.commons.helpers.OPEN_DOCUMENT_TREE
 import com.simplemobiletools.commons.helpers.PERMISSION_READ_CONTACTS
 import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_CONTACTS
 import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_STORAGE
@@ -45,6 +44,7 @@ import kotlinx.android.synthetic.main.item_edit_website.view.*
 import kotlinx.android.synthetic.main.item_event.view.*
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
+import java.io.File
 
 class EditContactActivity : ContactActivity() {
     private val INTENT_TAKE_PHOTO = 1
@@ -1250,8 +1250,7 @@ class EditContactActivity : ContactActivity() {
                                     R.string.moving_success
                                 } else {
                                     R.string.moving_success_partial
-                                }
-                                )
+                                })
                             }
                         }
                     }
@@ -1345,16 +1344,17 @@ class EditContactActivity : ContactActivity() {
             if (resolveActivity(packageManager) != null) {
                 val contactPath = ContactsHelper(this@EditContactActivity).getDefaultContactFolder(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)
 
-                if (needsStupidWritePermissions(contactPath!!.absolutePath)){
-                    this@EditContactActivity.createDirectorySync(contactPath!!.absolutePath)
-                    var photo = contactPath!!.absolutePath + "/Photo_${System.currentTimeMillis()}.jpg"
-                    var documentFile = this@EditContactActivity.getDocumentFile(photo.getParentPath())
-                    documentFile!!.createFile(photo.getMimeType(), photo.getFilenameFromPath())
-                    lastPhotoIntentUri = documentFile!!.uri
+                lastPhotoIntentUri = when {
+                    needsStupidWritePermissions(contactPath!!.absolutePath) -> {
+                        createDirectorySync(contactPath!!.absolutePath)
+                        var photo = contactPath?.absolutePath + "/Photo_${System.currentTimeMillis()}.jpg"
+                        var documentFile = DocumentFile.fromFile(File(photo))
+                        documentFile?.createFile(photo.getMimeType(), photo.getFilenameFromPath())
+                        documentFile!!.uri
+                    }
+                    else -> getCachePhotoUri(getCachePhoto(contactPath,""))
                 }
-                else{
-                    lastPhotoIntentUri = getCachePhotoUri(getCachePhoto(contactPath,""))
-                }
+
                 putExtra(MediaStore.EXTRA_OUTPUT,lastPhotoIntentUri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 startActivityForResult(this, INTENT_SAVE_PHOTO)
