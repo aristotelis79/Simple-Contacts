@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/activity_margin"
-        android:paddingRight="@dimen/activity_margin"
+        android:paddingStart="@dimen/activity_margin"
+        android:paddingEnd="@dimen/activity_margin"
         android:paddingTop="@dimen/activity_margin">
 
         <com.simplemobiletools.commons.views.MyAppCompatCheckbox
@@ -29,14 +29,6 @@
             android:paddingBottom="@dimen/activity_margin"
             android:paddingTop="@dimen/activity_margin"
             android:text="@string/favorites"/>
-
-        <com.simplemobiletools.commons.views.MyAppCompatCheckbox
-            android:id="@+id/manage_visible_tabs_recents"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/activity_margin"
-            android:paddingTop="@dimen/activity_margin"
-            android:text="@string/recent_calls"/>
 
         <com.simplemobiletools.commons.views.MyAppCompatCheckbox
             android:id="@+id/manage_visible_tabs_groups"

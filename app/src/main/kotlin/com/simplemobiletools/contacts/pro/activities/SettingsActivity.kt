@@ -43,10 +43,10 @@ class SettingsActivity : SimpleActivity() {
         setupShowPhoneNumbers()
         setupShowContactsWithNumbers()
         setupStartNameWithSurname()
-        setupUse24HourTimeFormat()
         setupFilterDuplicates()
         setupShowCallConfirmation()
         setupShowDialpadButton()
+        setupShowDialpadLetters()
         setupOnContactClick()
         updateTextColors(settings_holder)
     }
@@ -154,14 +154,6 @@ class SettingsActivity : SimpleActivity() {
         }
     }
 
-    private fun setupUse24HourTimeFormat() {
-        settings_use_24_hour_time_format.isChecked = config.use24HourFormat
-        settings_use_24_hour_time_format_holder.setOnClickListener {
-            settings_use_24_hour_time_format.toggle()
-            config.use24HourFormat = settings_use_24_hour_time_format.isChecked
-        }
-    }
-
     private fun setupFilterDuplicates() {
         settings_filter_duplicates.isChecked = config.filterDuplicates
         settings_filter_duplicates_holder.setOnClickListener {
@@ -175,6 +167,14 @@ class SettingsActivity : SimpleActivity() {
         settings_show_dialpad_button_holder.setOnClickListener {
             settings_show_dialpad_button.toggle()
             config.showDialpadButton = settings_show_dialpad_button.isChecked
+        }
+    }
+
+    private fun setupShowDialpadLetters() {
+        settings_show_dialpad_letters.isChecked = config.showDialpadLetters
+        settings_show_dialpad_letters_holder.setOnClickListener {
+            settings_show_dialpad_letters.toggle()
+            config.showDialpadLetters = settings_show_dialpad_letters.isChecked
         }
     }
 

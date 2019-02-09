@@ -19,13 +19,11 @@
     <string name="add_to_existing_contact">Добавить к существующему контакту</string>
     <string name="must_make_default_dialer">Вы должны сделать \"Simple Contacts\" приложением по умолчанию для набора номера для использования блокировки номеров.</string>
     <string name="set_to_default">Сделать по умолчанию</string>
-    <string name="call_number">Набрать номер</string>
 
     <!-- Placeholders -->
     <string name="no_contacts_found">Контакты не найдены</string>
     <string name="no_contacts_with_emails">Контакты с адресами электронной почты не найдены</string>
     <string name="no_contacts_with_phone_numbers">Контакты с номерами телефонов не найдены</string>
-    <string name="no_recent_calls_found">Недавние вызовы не найдены</string>
 
     <string name="new_contact">Новый контакт</string>
     <string name="edit_contact">Редактировать контакт</string>
@@ -58,16 +56,16 @@
     <string name="show_contact_thumbnails">Показывать фото контакта</string>
     <string name="show_dialpad_button">Показывать кнопку набора номера на главном экране</string>
     <string name="on_contact_click">При нажатии на контакт</string>
-    <string name="call_contact">Позвонить контакту</string>
-    <string name="view_contact">Просмотреть подробности о контакте</string>
+    <string name="call_contact">Вызов контакта</string>
+    <string name="view_contact">Просмотр подробностей</string>
     <string name="manage_shown_contact_fields">Управление отображаемыми полями контактов</string>
     <string name="filter_duplicates">Отфильтровывать повторяющиеся контакты</string>
     <string name="manage_shown_tabs">Управление отображаемыми вкладками</string>
     <string name="contacts">Контакты</string>
     <string name="favorites">Избранное</string>
-    <string name="recent_calls">Недавние вызовы</string>
     <string name="show_call_confirmation_dialog">Показывать диалог подтверждения вызова</string>
     <string name="show_only_contacts_with_numbers">Показывать только контакты с номерами телефонов</string>
+    <string name="show_dialpad_letters">Показывать буквы на кнопках набора номера</string>
 
     <!-- Emails -->
     <string name="email">Эл. почта</string>
@@ -151,7 +149,7 @@
 
     <!-- Strings displayed only on Google Playstore. Optional, but good to have -->
     <!-- Short description has to have less than 80 chars -->
-    <string name="app_short_description">An app for managing your contacts without ads, respecting your privacy.</string>
+    <string name="app_short_description">Приложение для управления контактами. Конфиденциальное. Без рекламы.</string>
     <string name="app_long_description">
         Простое приложение для создания и управления контактами из любого источника. Контакты могут быть сохранены только на вашем устройстве, а также синхронизированы через Google или другие учётные записи. Вы можете отображать свои любимые контакты в отдельном списке.
 
