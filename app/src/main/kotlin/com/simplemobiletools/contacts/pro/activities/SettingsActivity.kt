@@ -49,6 +49,7 @@ class SettingsActivity : SimpleActivity() {
     }
 
     private fun setupManageFilesStorage() {
+        settings_external_contact_file_dir.text = config.selectedStoragePathForContactFiles
         settings_manage_external_contact_file_dir_holder.setOnClickListener{
            FilePickerDialog(this, currPath = "/",pickFile = false) { path ->
                this.config.selectedStoragePathForContactFiles = path

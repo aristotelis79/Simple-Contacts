@@ -2,7 +2,7 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.simplemobiletools.contacts.pro"
+    package="com.simplemobiletools.patients.pro"
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.CALL_PHONE"/>
@@ -51,7 +51,7 @@
                 <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
 
-            <intent-filter>
+            <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW"/>
 
                 <data android:mimeType="text/directory"/>
@@ -61,7 +61,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 
-            <intent-filter>
+            <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -101,7 +101,7 @@
             android:label="@string/details"
             android:parentActivityName=".activities.MainActivity">
 
-            <intent-filter>
+            <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
 
@@ -110,7 +110,7 @@
                 <data android:mimeType="vnd.android.cursor.item/group"/>
             </intent-filter>
 
-            <intent-filter>
+            <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
 
