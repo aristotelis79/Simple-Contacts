@@ -1650,7 +1650,7 @@ class ContactsHelper(val context: Context) {
             return null
         }
         var firstNumber = maxOf(0,(phone?.lastIndex)?.minus(2)?:0)
-        var last3Num = phone?.substring(firstNumber, phone?.lastIndex!!.plus(1))
+        var last3Num = phone?.substring(firstNumber, phone.lastIndex.plus(1))
         return File(context.config.selectedStoragePathForContactFiles, "$fName"+"_$sName"+"_$last3Num"+"/")
     }
 

@@ -123,7 +123,6 @@ const val TELEGRAM_PACKAGE = "org.telegram.messenger"
 const val SIGNAL_PACKAGE = "org.thoughtcrime.securesms"
 const val WHATSAPP_PACKAGE = "com.whatsapp"
 
-const val BASE_CONTACT_EXTERNAL_PUBLIC_DIR = "/Contacts Files/"
 const val CONTACT_EXTERNAL_PUBLIC_DIR_KEY = "ContactsFilesPath"
 
 fun getEmptyLocalContact() = LocalContact(0, "", "", "", "", "", "", null, ArrayList(), ArrayList(), ArrayList(), 0, ArrayList(), "", ArrayList(), "", "", ArrayList(), ArrayList())

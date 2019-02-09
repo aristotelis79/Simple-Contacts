@@ -77,10 +77,10 @@ class EditContactActivity : ContactActivity() {
         isThirdPartyIntent = action == Intent.ACTION_EDIT || action == Intent.ACTION_INSERT || action == ADD_NEW_CONTACT_NUMBER
         val isFromSimpleContacts = intent.getBooleanExtra(IS_FROM_SIMPLE_CONTACTS, false)
         if (isThirdPartyIntent && !isFromSimpleContacts) {
-            handlePermission(PERMISSION_READ_CONTACTS) {
-                if (it) {
-                    handlePermission(PERMISSION_WRITE_CONTACTS) {
-                        if (it) {
+            handlePermission(PERMISSION_READ_CONTACTS) { r->
+                if (r) {
+                    handlePermission(PERMISSION_WRITE_CONTACTS) { w->
+                        if (w) {
                             initContact()
                         } else {
                             toast(R.string.no_contacts_permission)
@@ -558,7 +558,7 @@ class EditContactActivity : ContactActivity() {
     private fun setupFileDirItems(){
         val fileDirItemsList = ContactsHelper(this).getContactsItems(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)
 
-        fileDirItemsList?.sortedBy { !it.isDirectory }.forEachIndexed { index, fileDirItem ->
+        fileDirItemsList.sortedBy { !it.isDirectory }.forEachIndexed { index, fileDirItem ->
             var fileDirHolder = contact_fileDirItems_holder.getChildAt(index)
             if(fileDirHolder == null){
                 fileDirHolder = layoutInflater.inflate(R.layout.item_edit_file_dir_item, contact_fileDirItems_holder, false)
@@ -1357,24 +1357,11 @@ class EditContactActivity : ContactActivity() {
 
     private fun moveCopyTo(contactFile : File) {
         FilePickerDialog(this, currPath = contactFile.parentFile.path, pickFile = true, showFAB = true) { oldFilePath ->
-            var oldFilePathName = oldFilePath.getFilenameFromPath()
-            if (needsStupidWritePermissions(contactFile.absolutePath)) {
-                createDirectorySync(contactFile.absolutePath)
-                var oldFileDirItem = FileDirItem(oldFilePath, oldFilePathName)
-                copyMoveFilesTo(arrayListOf(oldFileDirItem), oldFileDirItem.getParentPath(), contactFile.absolutePath, isCopyOperation = false, copyPhotoVideoOnly = false, copyHidden = false){
-                    setupFileDirItems()
-                }
-            } else {
-                val newFilePath = "$contactFile.absolutePath/$oldFilePathName"
-                if (newFilePath != oldFilePath) {
-                    renameFile(oldFilePath, newFilePath) { result ->
-                        toast(if (result) {
-                            R.string.moving_success
-                        } else {
-                            R.string.moving_success_partial
-                        })
-                    }
-                }
+        var oldFilePathName = oldFilePath.getFilenameFromPath()
+            createDirectorySync(contactFile.absolutePath)
+            var oldFileDirItem = FileDirItem(oldFilePath, oldFilePathName)
+            copyMoveFilesTo(arrayListOf(oldFileDirItem), oldFileDirItem.getParentPath(), contactFile.absolutePath, isCopyOperation = false, copyPhotoVideoOnly = false, copyHidden = false){
+                setupFileDirItems()
             }
         }
     }

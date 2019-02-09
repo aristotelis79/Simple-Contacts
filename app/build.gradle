@@ -10,7 +10,6 @@ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
-
     defaultConfig {
         applicationId "com.simplemobiletools.contacts.pro"
         minSdkVersion 21
@@ -18,9 +17,7 @@ android {
         versionCode 39
         versionName "6.1.2"
         setProperty("archivesBaseName", "contacts")
-        multiDexEnabled true
     }
-
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']
@@ -29,7 +26,6 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
-
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
@@ -40,14 +36,14 @@ android {
             signingConfig signingConfigs.release
         }
     }
-
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
-
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
+    }
+    productFlavors {
     }
 }
 
@@ -56,9 +52,7 @@ dependencies {
     implementation 'joda-time:joda-time:2.10.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
     implementation 'com.googlecode.ez-vcard:ez-vcard:0.10.4'
-    implementation 'com.android.support:multidex:1.0.3'
-
     kapt "androidx.room:room-compiler:2.0.0"
-    implementation "androidx.room:room-runtime:2.0.0"
+    implementation 'androidx.room:room-runtime:2.0.0'
     annotationProcessor "androidx.room:room-compiler:2.0.0"
 }

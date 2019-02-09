@@ -7,6 +7,9 @@ import android.os.Bundle
 import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.extensions.*
+import com.simplemobiletools.commons.helpers.PERMISSION_READ_CONTACTS
+import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_CONTACTS
+import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_STORAGE
 import com.simplemobiletools.commons.helpers.isNougatPlus
 import com.simplemobiletools.commons.models.RadioItem
 import com.simplemobiletools.contacts.pro.R
@@ -51,16 +54,28 @@ class SettingsActivity : SimpleActivity() {
     private fun setupManageFilesStorage() {
         settings_external_contact_file_dir.text = config.selectedStoragePathForContactFiles
         settings_manage_external_contact_file_dir_holder.setOnClickListener{
-           FilePickerDialog(this, currPath = "/",pickFile = false) { path ->
-               this.config.selectedStoragePathForContactFiles = path
-                toast(if (!path?.isNullOrEmpty()) {
-                    R.string.moving_success
-                } else {
-                    R.string.moving_success_partial
-                })
+            handlePermission(PERMISSION_WRITE_STORAGE) { w ->
+                if (w) {
+                    FilePickerDialog(this, currPath = config.selectedStoragePathForContactFiles, pickFile = false) { path ->
+                        handleSAFDialog(path) {
+                            this.config.selectedStoragePathForContactFiles = path
+                            settings_external_contact_file_dir.text = path
+                            toast(if (!path.isEmpty()) {
+                                R.string.moving_success
+                            } else {
+                                R.string.moving_success_partial
+                            })
+                        }
+                    }
+                }
+                else {
+                    toast(R.string.no_storage_permissions)
+                    finish()
+                }
             }
         }
     }
+
 
     private fun setupCustomizeColors() {
         settings_customize_colors_holder.setOnClickListener {

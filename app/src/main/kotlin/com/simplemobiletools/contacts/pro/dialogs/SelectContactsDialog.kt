@@ -46,7 +46,7 @@ class SelectContactsDialog(val activity: SimpleActivity, initialContacts: ArrayL
 
     private fun dialogConfirmed() {
         Thread {
-            val adapter = view?.select_contact_list?.adapter as? SelectContactsAdapter
+            val adapter = view.select_contact_list?.adapter as? SelectContactsAdapter
             val selectedContacts = adapter?.getSelectedItemsSet()?.toList() ?: ArrayList()
 
             val newlySelectedContacts = selectedContacts.filter { !initiallySelectedContacts.contains(it) } as ArrayList
