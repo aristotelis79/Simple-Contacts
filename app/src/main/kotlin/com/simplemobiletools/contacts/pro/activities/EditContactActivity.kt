@@ -1238,22 +1238,15 @@ class EditContactActivity : ContactActivity() {
         )
 
         RadioGroupDialog(this, items) {
-            when (it as Int) {
-                SAVE_PHOTO -> startSavePhotoIntent()
-                CHOOSE_FILE -> {
-                    val contactPath = ContactsHelper(this).getDefaultContactFolder(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)?.path ?: return@RadioGroupDialog
-                    FilePickerDialog(this, currPath = contactPath, pickFile = true, showFAB = true) { oldPath ->
-                        val newPath = "$contactPath/${oldPath.getFilenameFromPath()}"
-                        if (newPath != oldPath) {
-                            renameFile(oldPath, newPath) { result ->
-                                toast(if (result) {
-                                    R.string.moving_success
-                                } else {
-                                    R.string.moving_success_partial
-                                })
-                            }
-                        }
-                    }
+            val contactFile = ContactsHelper(this@EditContactActivity).getDefaultContactFolder(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)
+            if( contactFile == null) {
+                toast(R.string.no_contacts_found)
+                return@RadioGroupDialog
+            }
+            else{
+                when (it as Int) {
+                    SAVE_PHOTO -> startSavePhotoIntent(contactFile)
+                    CHOOSE_FILE -> moveCopyTo(contactFile)
                 }
             }
         }
@@ -1339,22 +1332,20 @@ class EditContactActivity : ContactActivity() {
         }
     }
 
-    private fun startSavePhotoIntent() {
+    private fun startSavePhotoIntent(contactFile: File) {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+
             if (resolveActivity(packageManager) != null) {
-                val contactPath = ContactsHelper(this@EditContactActivity).getDefaultContactFolder(contact?.firstName,contact?.surname,contact?.phoneNumbers?.firstOrNull()?.value)
-
                 lastPhotoIntentUri = when {
-                    needsStupidWritePermissions(contactPath!!.absolutePath) -> {
-                        createDirectorySync(contactPath!!.absolutePath)
-                        var photo = contactPath?.absolutePath + "/Photo_${System.currentTimeMillis()}.jpg"
+                    needsStupidWritePermissions(contactFile.absolutePath) -> {
+                        createDirectorySync(contactFile.absolutePath)
+                        var photo = contactFile.absolutePath + "/Photo_${System.currentTimeMillis()}.jpg"
                         var documentFile = DocumentFile.fromFile(File(photo))
-                        documentFile?.createFile(photo.getMimeType(), photo.getFilenameFromPath())
-                        documentFile!!.uri
+                        documentFile.createFile(photo.getMimeType(), photo.getFilenameFromPath())
+                        documentFile.uri
                     }
-                    else -> getCachePhotoUri(getCachePhoto(contactPath,""))
+                    else -> getCachePhotoUri(getCachePhoto(contactFile,""))
                 }
-
                 putExtra(MediaStore.EXTRA_OUTPUT,lastPhotoIntentUri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 startActivityForResult(this, INTENT_SAVE_PHOTO)
@@ -1363,6 +1354,31 @@ class EditContactActivity : ContactActivity() {
             }
         }
     }
+
+    private fun moveCopyTo(contactFile : File) {
+        FilePickerDialog(this, currPath = contactFile.parentFile.path, pickFile = true, showFAB = true) { oldFilePath ->
+            var oldFilePathName = oldFilePath.getFilenameFromPath()
+            if (needsStupidWritePermissions(contactFile.absolutePath)) {
+                createDirectorySync(contactFile.absolutePath)
+                var oldFileDirItem = FileDirItem(oldFilePath, oldFilePathName)
+                copyMoveFilesTo(arrayListOf(oldFileDirItem), oldFileDirItem.getParentPath(), contactFile.absolutePath, isCopyOperation = false, copyPhotoVideoOnly = false, copyHidden = false){
+                    setupFileDirItems()
+                }
+            } else {
+                val newFilePath = "$contactFile.absolutePath/$oldFilePathName"
+                if (newFilePath != oldFilePath) {
+                    renameFile(oldFilePath, newFilePath) { result ->
+                        toast(if (result) {
+                            R.string.moving_success
+                        } else {
+                            R.string.moving_success_partial
+                        })
+                    }
+                }
+            }
+        }
+    }
+
     private fun getPhoneNumberTypeId(value: String) = when (value) {
         getString(R.string.mobile) -> CommonDataKinds.Phone.TYPE_MOBILE
         getString(R.string.home) -> CommonDataKinds.Phone.TYPE_HOME
