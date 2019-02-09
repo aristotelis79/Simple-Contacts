@@ -1,12 +1,14 @@
 package com.simplemobiletools.contacts.pro.helpers
 
+import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
 import android.accounts.Account
 import android.accounts.AccountManager
 import android.content.*
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.ContactsContract
@@ -23,10 +25,6 @@ import com.simplemobiletools.contacts.pro.R
 import com.simplemobiletools.contacts.pro.extensions.*
 import com.simplemobiletools.contacts.pro.models.*
 import com.simplemobiletools.contacts.pro.overloads.times
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
 
 class ContactsHelper(val context: Context) {
     private val BATCH_SIZE = 100
@@ -98,6 +96,43 @@ class ContactsHelper(val context: Context) {
                 callback(resultContacts)
             }
         }.start()
+    }
+
+    fun getDefaultContactFolder(fName: String?, sName: String?, phone: String? ): File? {
+        if(fName.isNullOrBlank() && sName.isNullOrBlank() && phone.isNullOrBlank()){
+            return null
+        }
+        var firstNumber = maxOf(0,(phone?.lastIndex)?.minus(2)?:0)
+        var last3Num = phone?.substring(firstNumber, phone.lastIndex.plus(1))
+        return File(context.config.selectedStoragePathForContactFiles, "$fName"+"_$sName"+"_$last3Num"+"/")
+    }
+
+    fun getContactsItems(fName: String?, sName: String?, phone: String? ): List<FileDirItem>{
+
+        var contactFolder = getDefaultContactFolder(fName,sName,phone) ?: return ArrayList()
+
+        if (!contactFolder.exists()) {
+            contactFolder.mkdirs()
+        }
+
+        return getFolderItems(contactFolder)
+    }
+
+    private fun getFolderItems(folder: File, getProperFileSize: Boolean = false, showHidden: Boolean = false ): List<FileDirItem> {
+        val items = ArrayList<FileDirItem>()
+        val files = folder.listFiles() ?: return ArrayList()
+
+        for (file in files) {
+            if (!showHidden && file.isHidden) {
+                continue
+            }
+
+            val curPath = file.absolutePath
+            val curName = curPath.getFilenameFromPath()
+            val size = if (getProperFileSize) file.getProperSize(showHidden) else file.length()
+            items.add(FileDirItem(curPath, curName, file.isDirectory, file.getDirectChildrenCount(showHidden), size))
+        }
+        return items
     }
 
     private fun getContentResolverAccounts(): HashSet<ContactSource> {
@@ -1558,123 +1593,5 @@ class ContactsHelper(val context: Context) {
         } catch (e: Exception) {
             context.showErrorToast(e)
         }
-    }
-            }
-
-            val blockedNumbers = context.getBlockedNumbers()
-            val uri = CallLog.Calls.CONTENT_URI
-            val projection = arrayOf(
-                    CallLog.Calls._ID,
-                    CallLog.Calls.NUMBER,
-                    CallLog.Calls.DATE,
-                    CallLog.Calls.CACHED_NAME
-            )
-
-            val sorting = "${CallLog.Calls._ID} DESC LIMIT 100"
-            val currentDate = Date(System.currentTimeMillis())
-            val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(currentDate)
-            val todayDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(currentDate)
-            val yesterdayDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(System.currentTimeMillis() - DAY_SECONDS * 1000))
-            val yesterday = context.getString(R.string.yesterday)
-            val timeFormat = if (context.config.use24HourFormat) "HH:mm" else "h:mm a"
-            var prevNumber = ""
-
-            var cursor: Cursor? = null
-            try {
-                cursor = context.contentResolver.query(uri, projection, null, null, sorting)
-                if (cursor?.moveToFirst() == true) {
-                    do {
-                        val id = cursor.getIntValue(CallLog.Calls._ID)
-                        val number = cursor.getStringValue(CallLog.Calls.NUMBER)
-                        val date = cursor.getLongValue(CallLog.Calls.DATE)
-                        val name = cursor.getStringValue(CallLog.Calls.CACHED_NAME)
-                        if (number == prevNumber) {
-                            continue
-                        }
-
-                        if (blockedNumbers.any { it.number == number || it.normalizedNumber == number }) {
-                            continue
-                        }
-
-                        var formattedDate = SimpleDateFormat("dd MMM yyyy, $timeFormat", Locale.getDefault()).format(Date(date))
-                        val datePart = formattedDate.substring(0, 11)
-                        when {
-                            datePart == todayDate -> formattedDate = formattedDate.substring(12)
-                            datePart == yesterdayDate -> formattedDate = yesterday + formattedDate.substring(11)
-                            formattedDate.substring(7, 11) == currentYear -> formattedDate = formattedDate.substring(0, 6) + formattedDate.substring(11)
-                        }
-
-                        prevNumber = number
-                        val recentCall = RecentCall(id, number, formattedDate, name)
-                        calls.add(recentCall)
-                    } while (cursor.moveToNext())
-                }
-            } finally {
-                cursor?.close()
-            }
-            callback(calls)
-        }.start()
-    }
-
-    fun removeRecentCalls(ids: ArrayList<Int>) {
-        Thread {
-            try {
-                val operations = ArrayList<ContentProviderOperation>()
-                val selection = "${CallLog.Calls._ID} = ?"
-                ids.forEach {
-                    ContentProviderOperation.newDelete(CallLog.Calls.CONTENT_URI).apply {
-                        val selectionArgs = arrayOf(it.toString())
-                        withSelection(selection, selectionArgs)
-                        operations.add(build())
-                    }
-
-                    if (operations.size % BATCH_SIZE == 0) {
-                        context.contentResolver.applyBatch(CallLog.AUTHORITY, operations)
-                        operations.clear()
-                    }
-                }
-
-                context.contentResolver.applyBatch(CallLog.AUTHORITY, operations)
-            } catch (e: Exception) {
-                context.showErrorToast(e)
-            }
-        }.start()
-    }
-
-    fun getDefaultContactFolder(fName: String?, sName: String?, phone: String? ): File? {
-        if(fName.isNullOrBlank() && sName.isNullOrBlank() && phone.isNullOrBlank()){
-            return null
-        }
-        var firstNumber = maxOf(0,(phone?.lastIndex)?.minus(2)?:0)
-        var last3Num = phone?.substring(firstNumber, phone.lastIndex.plus(1))
-        return File(context.config.selectedStoragePathForContactFiles, "$fName"+"_$sName"+"_$last3Num"+"/")
-    }
-
-    fun getContactsItems(fName: String?, sName: String?, phone: String? ): List<FileDirItem>{
-
-        var contactFolder = getDefaultContactFolder(fName,sName,phone) ?: return ArrayList()
-
-        if (!contactFolder.exists()) {
-            contactFolder.mkdirs()
-        }
-
-        return getFolderItems(contactFolder)
-    }
-
-    private fun getFolderItems(folder: File, getProperFileSize: Boolean = false, showHidden: Boolean = false ): List<FileDirItem> {
-        val items = ArrayList<FileDirItem>()
-        val files = folder.listFiles() ?: return ArrayList()
-
-        for (file in files) {
-            if (!showHidden && file.isHidden) {
-                continue
-            }
-
-            val curPath = file.absolutePath
-            val curName = curPath.getFilenameFromPath()
-            val size = if (getProperFileSize) file.getProperSize(showHidden) else file.length()
-            items.add(FileDirItem(curPath, curName, file.isDirectory, file.getDirectChildrenCount(showHidden), size))
-        }
-        return items
     }
 }

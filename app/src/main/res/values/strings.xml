@@ -105,7 +105,7 @@
     <string name="target_contact_source">Target contact source</string>
     <string name="include_contact_sources">Include contact sources</string>
     <string name="filename_without_vcf">Filename (without .vcf)</string>
-    <string name="choose_file">Choose file</string>
+    <string name="choose_file" translatable="false">Choose file</string>
 
     <!-- Dialpad -->
     <string name="dialpad">Dialpad</string>
@@ -160,7 +160,7 @@
 
         This app is just one piece of a bigger series of apps. You can find the rest of them at https://www.simplemobiletools.com
     </string>
-    <string name="manage_external_contact_file_dir">Files Folder</string>
+    <string name="manage_external_contact_file_dir" translatable="false">Files Folder</string>
 
     <!--
         Haven't found some strings? There's more at

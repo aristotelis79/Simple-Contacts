@@ -7,8 +7,6 @@ import android.os.Bundle
 import com.simplemobiletools.commons.dialogs.FilePickerDialog
 import com.simplemobiletools.commons.dialogs.RadioGroupDialog
 import com.simplemobiletools.commons.extensions.*
-import com.simplemobiletools.commons.helpers.PERMISSION_READ_CONTACTS
-import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_CONTACTS
 import com.simplemobiletools.commons.helpers.PERMISSION_WRITE_STORAGE
 import com.simplemobiletools.commons.helpers.isNougatPlus
 import com.simplemobiletools.commons.models.RadioItem
@@ -20,7 +18,6 @@ import com.simplemobiletools.contacts.pro.helpers.ON_CLICK_CALL_CONTACT
 import com.simplemobiletools.contacts.pro.helpers.ON_CLICK_EDIT_CONTACT
 import com.simplemobiletools.contacts.pro.helpers.ON_CLICK_VIEW_CONTACT
 import kotlinx.android.synthetic.main.activity_settings.*
-import java.io.File
 import java.util.*
 
 class SettingsActivity : SimpleActivity() {
